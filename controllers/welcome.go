@@ -2,6 +2,7 @@ package controllers
 
 import (
   "strings"
+  "net/url"
   "net/http"
   "html/template"
 
@@ -19,13 +20,14 @@ type PageData struct {
 // Public Methods
 
 func WelcomeGet(w http.ResponseWriter, r *http.Request) {
+  spotifyAuthLink := spotifyAuthLink()
   tmpl, _ := template.ParseFiles("./views/welcome.html")
-  tmpl.Execute(w, nil)
+  tmpl.Execute(w, spotifyAuthLink)
 }
 
 func WelcomePost(w http.ResponseWriter, r *http.Request) {
-  artistName := r.PostFormValue("artistName")
-  songName := r.PostFormValue("songName")
+  artistName := r.URL.Query().Get("artistName")
+  songName := r.URL.Query().Get("songName")
 
   pageData := PageData{
     Artist: models.Artist{
@@ -42,6 +44,21 @@ func WelcomePost(w http.ResponseWriter, r *http.Request) {
 }
 
 // Private Methods
+
+func spotifyAuthLink() string {
+  baseUrl, _ := url.Parse("https://accounts.spotify.com/")
+  baseUrl.Path += "authorize"
+
+  params := url.Values{}
+  params.Add("client_id", "6f524a004e874120b42251c6c6d0e699")
+  params.Add("response_type", "code")
+  params.Add("redirect_uri", "http://localhost:3000/spotify")
+  params.Add("scope", "user-read-currently-playing streaming user-read-playback-state")
+  params.Add("state", "alskdjalskfnalsdkmalskdm")
+  baseUrl.RawQuery = params.Encode()
+
+  return baseUrl.String()
+}
 
 func getLyric(artistName string, songName string) models.Lyric {
   c := colly.NewCollector()

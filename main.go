@@ -12,7 +12,8 @@ import (
 func main() {
   r := mux.NewRouter()
   r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
-  r.HandleFunc("/", controllers.WelcomePost).Methods("POST")
+  r.HandleFunc("/a", controllers.WelcomePost).Methods("GET")
+  r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
   serve(r, "3000")
 }
 
