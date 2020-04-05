@@ -4,66 +4,108 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
-type RequestAuthorization struct {
-	Link string
-	BaseURL string
-	Path string
-	ResponseType string
-	Scope string
-	State string
+type Spotify struct {
+	ClientID               string
+	ClientSecret           string
+	RedirectURI            string
+	Authorization          Authorization
+	RefreshAndAccessTokens RefreshAndAccessTokens
+	CurrentlyPlaying       CurrentlyPlaying
+}
+
+type Authorization struct {
+	Request struct {
+		Link         string
+		BaseURL      string
+		Path         string
+		ResponseType string
+		Scope        string
+		State        string
+	}
+	Response struct {
+		Code string
+	}
 }
 
 type RefreshAndAccessTokens struct {
-	URL string
-	Code string
-	GrantType string
-	RedirectURI string
-	Authorization string
-	ContentType string
+	Request struct {
+		URL           string
+		Code          string
+		GrantType     string
+		RedirectURI   string
+		Authorization string
+		ContentType   string
+	}
+	Response struct {
+		AccessToken  string `json:"access_token"`
+		TokenType    string `json:"token_type"`
+		ExpiresIn    int    `json:"expires_in"`
+		RefreshToken string `json:"refresh_token"`
+		Scope        string `json:"scope"`
+	}
 }
 
-type Spotify struct {
-	ClientID string
-	ClientSecret string
-	RedirectURI string
-	RequestAuthorization RequestAuthorization
-	RefreshAndAccessTokens RefreshAndAccessTokens
+type CurrentlyPlaying struct {
+	Item struct {
+		Artists []struct {
+			ExternalUrls struct {
+				Spotify string `json:"spotify"`
+			} `json:"external_urls"`
+			Href string `json:"href"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+			Type string `json:"type"`
+			URI  string `json:"uri"`
+		} `json:"artists"`
+		Href        string `json:"href"`
+		ID          string `json:"id"`
+		IsLocal     bool   `json:"is_local"`
+		Name        string `json:"name"`
+		Popularity  int    `json:"popularity"`
+		PreviewURL  string `json:"preview_url"`
+		TrackNumber int    `json:"track_number"`
+		Type        string `json:"type"`
+		URI         string `json:"uri"`
+	} `json:"item"`
 }
 
 // Public Methods
 
 func (s *Spotify) InitSecrets() {
-	s.ClientID     = "6f524a004e874120b42251c6c6d0e699"
+	s.ClientID = "6f524a004e874120b42251c6c6d0e699"
 	s.ClientSecret = "2ed3ffdd211a4f2ab38d6da112316fee"
-	s.RedirectURI  = "http://localhost:3000/spotify"
+	s.RedirectURI = "http://localhost:3000/spotify"
 }
 
-func (s *Spotify) GetRequestAuthorizationLink() string {
-	setRequestAuthorization(&s.RequestAuthorization)
+func (s *Spotify) GetRequestAuthorizationLink() (authLink string, err error) {
+	setRequestAuthorization(s)
+	r := &s.Authorization.Request
 
-	baseUrl, _ := url.Parse(s.RequestAuthorization.BaseURL)
-	baseUrl.Path += s.RequestAuthorization.Path
+	baseUrl, _ := url.Parse(r.BaseURL)
+	baseUrl.Path += r.Path
 
 	params := url.Values{}
 	params.Add("client_id", s.ClientID)
-	params.Add("response_type", s.RequestAuthorization.ResponseType)
+	params.Add("response_type", r.ResponseType)
 	params.Add("redirect_uri", s.RedirectURI)
-	params.Add("scope", s.RequestAuthorization.Scope)
-	params.Add("state", s.RequestAuthorization.State)
+	params.Add("scope", r.Scope)
+	params.Add("state", r.State)
 	baseUrl.RawQuery = params.Encode()
-	s.RequestAuthorization.Link = baseUrl.String()
+	r.Link = baseUrl.String()
 
-	return s.RequestAuthorization.Link
+	return r.Link, nil
 }
 
-func (s *Spotify) GetRefreshAndAccessTokensReq(code string) *http.Request {
-	setRefreshAndAccessTokens(s, code)
-	r := s.RefreshAndAccessTokens
+func (s *Spotify) GetRefreshAndAccessTokensResponse() error {
+	setRefreshAndAccessTokens(s)
+	r := s.RefreshAndAccessTokens.Request
 
 	params := url.Values{}
 	params.Add("code", r.Code)
@@ -75,29 +117,59 @@ func (s *Spotify) GetRefreshAndAccessTokensReq(code string) *http.Request {
 	req.Header.Set("Authorization", r.Authorization)
 	req.Header.Set("Content-Type", r.ContentType)
 
-	return req
+	// Sends the request.
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// Reads response and unmarshal it to spotify model.
+	body, _ := ioutil.ReadAll(resp.Body)
+	json.Unmarshal(body, &s.RefreshAndAccessTokens.Response)
+	return nil
+}
+
+func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, err error) {
+	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
+	req.Header.Set("Authorization", "Bearer "+s.RefreshAndAccessTokens.Response.AccessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	json.Unmarshal(body, &s.CurrentlyPlaying)
+
+	return s.CurrentlyPlaying.Item.Artists[0].Name, s.CurrentlyPlaying.Item.Name, nil
 }
 
 // Private Methods
 
-func setRequestAuthorization(r *RequestAuthorization) {
-	r.BaseURL      = "https://accounts.spotify.com/"
-	r.Path         = "authorize"
+func setRequestAuthorization(s *Spotify) {
+	r := &s.Authorization.Request
+	r.BaseURL = "https://accounts.spotify.com/"
+	r.Path = "authorize"
 	r.ResponseType = "code"
-	r.Scope        = "user-read-currently-playing streaming user-read-playback-state"
-	r.State        = randomState()
+	r.Scope = "user-read-currently-playing streaming user-read-playback-state"
+	r.State = randomState()
 }
 
-func setRefreshAndAccessTokens(s *Spotify, code string) {
+func setRefreshAndAccessTokens(s *Spotify) {
 	secrets := s.ClientID + ":" + s.ClientSecret
 	encoded := "Basic " + base64.StdEncoding.EncodeToString([]byte(secrets))
 
-	s.RefreshAndAccessTokens.URL           = "https://accounts.spotify.com/api/token"
-	s.RefreshAndAccessTokens.Code          = code
-	s.RefreshAndAccessTokens.GrantType     = "authorization_code"
-	s.RefreshAndAccessTokens.RedirectURI   = "http://localhost:3000/spotify"
-	s.RefreshAndAccessTokens.Authorization = encoded
-	s.RefreshAndAccessTokens.ContentType   = "application/x-www-form-urlencoded"
+	r := &s.RefreshAndAccessTokens.Request
+	r.URL = "https://accounts.spotify.com/api/token"
+	r.Code = s.Authorization.Response.Code
+	r.GrantType = "authorization_code"
+	r.RedirectURI = "http://localhost:3000/spotify"
+	r.Authorization = encoded
+	r.ContentType = "application/x-www-form-urlencoded"
 }
 
 func randomState() string {

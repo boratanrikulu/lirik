@@ -19,7 +19,14 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 	spotify := new(models.Spotify)
 	spotify.InitSecrets()
 
-	_ = tmpl.Execute(w, WelcomePageData{
-		SpotifyAuthLink: spotify.GetRequestAuthorizationLink(),
+	authLink, err := spotify.GetRequestAuthorizationLink()
+	if err != nil {
+		panic("Something is wrong")
+	}
+	err = tmpl.Execute(w, WelcomePageData{
+		SpotifyAuthLink: authLink,
 	})
+	if err != nil {
+		panic("Something is wrong")
+	}
 }
