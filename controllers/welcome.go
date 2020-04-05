@@ -3,7 +3,6 @@ package controllers
 import (
 	"html/template"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/boratanrikulu/s-lyrics/models"
@@ -12,24 +11,31 @@ import (
 
 // Page Datas
 
-type PageData struct {
+type LyricPageData struct {
 	Artist models.Artist
 	Song   models.Song
+}
+
+type WelcomePageData struct {
+	SpotifyAuthLink string
 }
 
 // Public Methods
 
 func WelcomeGet(w http.ResponseWriter, r *http.Request) {
-	spotifyAuthLink := spotifyAuthLink()
-	tmpl, _ := template.ParseFiles("./views/welcome.html")
-	tmpl.Execute(w, spotifyAuthLink)
+	tmpl := template.Must(template.ParseFiles("./views/welcome.html"))
+	spotify := new(models.Spotify)
+
+	_ = tmpl.Execute(w, WelcomePageData{
+		SpotifyAuthLink: spotify.GetSpotifyAuthLink(),
+	})
 }
 
-func WelcomePost(w http.ResponseWriter, r *http.Request) {
+func LyricGet(w http.ResponseWriter, r *http.Request) {
 	artistName := r.URL.Query().Get("artistName")
 	songName := r.URL.Query().Get("songName")
 
-	pageData := PageData{
+	pageData := LyricPageData{
 		Artist: models.Artist{
 			Name: artistName,
 		},
@@ -39,26 +45,11 @@ func WelcomePost(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tmpl, _ := template.ParseFiles("./views/songs.html")
-	tmpl.Execute(w, pageData)
+	tmpl := template.Must(template.ParseFiles("./views/songs.html"))
+	_ = tmpl.Execute(w, pageData)
 }
 
 // Private Methods
-
-func spotifyAuthLink() string {
-	baseUrl, _ := url.Parse("https://accounts.spotify.com/")
-	baseUrl.Path += "authorize"
-
-	params := url.Values{}
-	params.Add("client_id", "6f524a004e874120b42251c6c6d0e699")
-	params.Add("response_type", "code")
-	params.Add("redirect_uri", "http://localhost:3000/spotify")
-	params.Add("scope", "user-read-currently-playing streaming user-read-playback-state")
-	params.Add("state", "alskdjalskfnalsdkmalskdm")
-	baseUrl.RawQuery = params.Encode()
-
-	return baseUrl.String()
-}
 
 func getLyric(artistName string, songName string) models.Lyric {
 	c := colly.NewCollector()
