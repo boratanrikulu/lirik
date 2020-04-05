@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -143,12 +144,15 @@ func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, err
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return "", "", errors.New("Error.")
 	}
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	json.Unmarshal(body, &s.CurrentlyPlaying)
+	if s.CurrentlyPlaying.Item.Name == "" {
+		return "", "", errors.New("Error.")
+	}
 
 	return s.CurrentlyPlaying.Item.Artists[0].Name, s.CurrentlyPlaying.Item.Name, nil
 }

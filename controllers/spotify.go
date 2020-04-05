@@ -2,10 +2,19 @@ package controllers
 
 import (
 	"github.com/boratanrikulu/s-lyrics/models"
+	"html/template"
 	"net/http"
 )
 
 // Public Methods
+
+func WrongGet(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("./views/wrong.html"))
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		panic("Something is wrong")
+	}
+}
 
 func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Creates a spotify model with it's secrets.
@@ -18,13 +27,13 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Result is in spotify.ResponseRefreshAndAccessTokens
 	err := spotify.GetRefreshAndAccessTokensResponse()
 	if err != nil {
-		panic("Something wrong")
+		http.Redirect(w, r, "/wrong", http.StatusMovedPermanently)
 	}
 
 	// Gets current song.
 	artistName, songName, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
-		panic("Something wrong")
+		http.Redirect(w, r, "/wrong", http.StatusMovedPermanently)
 	}
 
 	// Redirects to lyrics page.
