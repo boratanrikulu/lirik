@@ -127,7 +127,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	currentSong, currentArtist := currentlyPlaying(jsonData.AccessToken)
 
 	a := "?songName=" + currentSong + "&artistName=" + currentArtist
-	http.Redirect(w, r, "/a"+a, 300)
+	http.Redirect(w, r, "/lyric"+a, 300)
 }
 
 func currentlyPlaying(access_token string) (string, string) {
