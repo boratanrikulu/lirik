@@ -1,13 +1,10 @@
 package controllers
 
 import (
-	// "strings"
-	"bytes"
-	"encoding/base64"
 	"encoding/json"
+	"github.com/boratanrikulu/s-lyrics/models"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 type CurrentlyPlaying struct {
@@ -100,19 +97,10 @@ type JSONData struct {
 }
 
 func SpotifyGet(w http.ResponseWriter, r *http.Request) {
-	params := url.Values{}
-	params.Add("code", r.URL.Query().Get("code"))
-	params.Add("grant_type", "authorization_code")
-	params.Add("redirect_uri", "http://localhost:3000/spotify")
+	spotify := new(models.Spotify)
+	spotify.InitSecrets()
 
-	req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token",
-		bytes.NewBuffer([]byte(params.Encode())))
-
-	msg := "6f524a004e874120b42251c6c6d0e699:2ed3ffdd211a4f2ab38d6da112316fee"
-	encoded := "Basic " + base64.StdEncoding.EncodeToString([]byte(msg))
-	req.Header.Set("Authorization", encoded)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
+	req := spotify.GetRefreshAndAccessTokensReq(r.URL.Query().Get("code"))
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
