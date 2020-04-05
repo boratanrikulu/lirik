@@ -1,13 +1,13 @@
 package controllers
 
-import(
-  // "strings"
-  "bytes"
-  "net/url"
-  "net/http"
-  "io/ioutil"
-  "encoding/json"
-  "encoding/base64"
+import (
+	// "strings"
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 )
 
 type CurrentlyPlaying struct {
@@ -99,52 +99,51 @@ type JSONData struct {
 	Scope        string `json:"scope"`
 }
 
-func SpotifyGet(w http.ResponseWriter, r *http.Request)  {
-  params := url.Values{}
-  params.Add("code", r.URL.Query().Get("code"))
-  params.Add("grant_type", "authorization_code")
-  params.Add("redirect_uri", "http://localhost:3000/spotify")
+func SpotifyGet(w http.ResponseWriter, r *http.Request) {
+	params := url.Values{}
+	params.Add("code", r.URL.Query().Get("code"))
+	params.Add("grant_type", "authorization_code")
+	params.Add("redirect_uri", "http://localhost:3000/spotify")
 
-  req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token",
-                                                   bytes.NewBuffer([]byte(params.Encode())))
+	req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token",
+		bytes.NewBuffer([]byte(params.Encode())))
 
-  msg := "6f524a004e874120b42251c6c6d0e699:2ed3ffdd211a4f2ab38d6da112316fee"
-  encoded := "Basic " + base64.StdEncoding.EncodeToString([]byte(msg))
-  req.Header.Set("Authorization", encoded)
-  req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	msg := "6f524a004e874120b42251c6c6d0e699:2ed3ffdd211a4f2ab38d6da112316fee"
+	encoded := "Basic " + base64.StdEncoding.EncodeToString([]byte(msg))
+	req.Header.Set("Authorization", encoded)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
 
-  client := &http.Client{}
-  resp, err := client.Do(req)
-  if err != nil {
-      panic(err)
-  }
-  defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	jsonData := JSONData{}
+	json.Unmarshal(body, &jsonData)
 
-  body, _ := ioutil.ReadAll(resp.Body)
-  jsonData := JSONData{}
-  json.Unmarshal(body, &jsonData)
+	currentSong, currentArtist := currentlyPlaying(jsonData.AccessToken)
 
-  currentSong, currentArtist := currentlyPlaying(jsonData.AccessToken)
-
-  a := "?songName=" + currentSong +"&artistName=" + currentArtist
-  http.Redirect(w, r, "/a" + a, 300)
+	a := "?songName=" + currentSong + "&artistName=" + currentArtist
+	http.Redirect(w, r, "/a"+a, 300)
 }
 
 func currentlyPlaying(access_token string) (string, string) {
-  req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
-  req.Header.Set("Authorization", "Bearer " + access_token)
+	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
+	req.Header.Set("Authorization", "Bearer "+access_token)
 
-  client := &http.Client{}
-  resp, err := client.Do(req)
-  if err != nil {
-      panic(err)
-  }
-  defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
 
-  body, _ := ioutil.ReadAll(resp.Body)
-  currentlyPlaying := CurrentlyPlaying{}
-  json.Unmarshal(body, &currentlyPlaying)
+	body, _ := ioutil.ReadAll(resp.Body)
+	currentlyPlaying := CurrentlyPlaying{}
+	json.Unmarshal(body, &currentlyPlaying)
 
-  return currentlyPlaying.Item.Name, currentlyPlaying.Item.Artists[0].Name
+	return currentlyPlaying.Item.Name, currentlyPlaying.Item.Artists[0].Name
 }
