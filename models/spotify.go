@@ -92,7 +92,7 @@ func setRefreshAndAccessTokens(s *Spotify, code string) {
 	secrets := s.ClientID + ":" + s.ClientSecret
 	encoded := "Basic " + base64.StdEncoding.EncodeToString([]byte(secrets))
 
-	s.RefreshAndAccessTokens.URL			= "https://accounts.spotify.com/api/token"
+	s.RefreshAndAccessTokens.URL           = "https://accounts.spotify.com/api/token"
 	s.RefreshAndAccessTokens.Code          = code
 	s.RefreshAndAccessTokens.GrantType     = "authorization_code"
 	s.RefreshAndAccessTokens.RedirectURI   = "http://localhost:3000/spotify"
