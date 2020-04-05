@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type Spotify struct {
@@ -79,9 +80,13 @@ type CurrentlyPlaying struct {
 // Public Methods
 
 func (s *Spotify) InitSecrets() {
-	s.ClientID = "6f524a004e874120b42251c6c6d0e699"
-	s.ClientSecret = "2ed3ffdd211a4f2ab38d6da112316fee"
-	s.RedirectURI = "http://localhost:3000/spotify"
+	s.ClientID = os.Getenv("CLIENT_ID")
+	s.ClientSecret = os.Getenv("CLIENT_SECRET")
+	s.RedirectURI = os.Getenv("REDIRECT_URI")
+
+	if s.ClientID == "" || s.ClientSecret == "" || s.RedirectURI == "" {
+		panic("Secrets are not set in env file.")
+	}
 }
 
 func (s *Spotify) GetRequestAuthorizationLink() (authLink string, err error) {

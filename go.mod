@@ -11,6 +11,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/gorilla/mux v1.7.4
+	github.com/joho/godotenv v1.3.0
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 )
