@@ -18,27 +18,27 @@ type RequestAuthorization struct {
 }
 
 type Spotify struct {
+	RequestAuthorization RequestAuthorization
 }
 
 // Public Methods
 
 func (s Spotify) GetSpotifyAuthLink() string {
-	var requestAuthorization RequestAuthorization
-	SetRequestAuthorization(&requestAuthorization)
+	SetRequestAuthorization(&s.RequestAuthorization)
 
-	baseUrl, _ := url.Parse(requestAuthorization.BaseURL)
-	baseUrl.Path += requestAuthorization.Path
+	baseUrl, _ := url.Parse(s.RequestAuthorization.BaseURL)
+	baseUrl.Path += s.RequestAuthorization.Path
 
 	params := url.Values{}
-	params.Add("client_id", requestAuthorization.ClientID)
-	params.Add("response_type", requestAuthorization.ResponseType)
-	params.Add("redirect_uri", requestAuthorization.RedirectURI)
-	params.Add("scope", requestAuthorization.Scope)
-	params.Add("state", requestAuthorization.State)
+	params.Add("client_id", s.RequestAuthorization.ClientID)
+	params.Add("response_type", s.RequestAuthorization.ResponseType)
+	params.Add("redirect_uri", s.RequestAuthorization.RedirectURI)
+	params.Add("scope", s.RequestAuthorization.Scope)
+	params.Add("state", s.RequestAuthorization.State)
 	baseUrl.RawQuery = params.Encode()
-	requestAuthorization.Link = baseUrl.String()
+	s.RequestAuthorization.Link = baseUrl.String()
 
-	return requestAuthorization.Link
+	return s.RequestAuthorization.Link
 }
 
 // Private Methods
