@@ -13,7 +13,7 @@ func main() {
 	godotenv.Load()
 	r := mux.NewRouter()
 	r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
-	r.HandleFunc("/lyric", controllers.LyricGet).Methods("GET")
+	r.HandleFunc("/lyrics", controllers.LyricsGet).Methods("GET")
 	r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
 	r.HandleFunc("/wrong", controllers.WrongGet).Methods("GET")
 	serve(r, "3000")

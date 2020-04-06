@@ -1,32 +1,86 @@
 package models
 
 import (
-	"github.com/gocolly/colly/v2"
-	"strings"
+	"encoding/json"
+	"errors"
+
+	//"bytes"
+	//"bytes"
+	//"encoding/json"
+	//"errors"
+	"regexp"
+	"fmt"
+	"io/ioutil"
+	"net/url"
+	//"strings"
+
+	//"net/url"
+
+	//"io/ioutil"
+	"net/http"
+	//"net/url"
 )
 
 type Lyric struct {
-	Lines []string
+	SongName   string
+	ArtistName string
+	GeniusID   int
+}
+
+type Genius struct {
+	Response struct {
+		Hits []struct {
+			Type string `json:type`
+			Result struct {
+				ID int `json:"id"`
+			} `json:"result"`
+		} `json:"hits"`
+	} `json:"response"`
 }
 
 // Public Methods
 
-func (l Lyric) GetLyric(artistName string, songName string) Lyric {
-	c := colly.NewCollector()
+func (l *Lyric) GetLyric() error {
+	// Removes "(....)" values from song name.
+	re := regexp.MustCompile(`\(.*?\)`)
+	songName := re.ReplaceAllString(l.SongName, "")
 
-	c.OnHTML("table#artistsonglist td.songName a[href]", func(e *colly.HTMLElement) {
-		if strings.ToLower(strings.TrimSpace(e.Text)) == strings.ToLower(strings.TrimSpace(songName)) {
-			link := "https://lyricstranslate.com/" + e.Attr("href")
-			c.Visit(link)
+	u, _ := url.Parse("https://api.genius.com/search")
+	q, _ := url.ParseQuery(u.RawQuery)
+
+	q.Add("q", l.ArtistName + " " + songName)
+	u.RawQuery = q.Encode()
+	req, _ := http.NewRequest("GET", fmt.Sprint(u), nil)
+
+	req.Header.Set("Authorization",
+		"Bearer IwH8C9cJrsFo3rMg86h9kQ0DWP04ytVSwIh8906uSOWKQS7aDPCLdNlZEB7xDTwx")
+
+	// Sends the request.
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	//fmt.Println(params.Encode())
+	//fmt.Println(string(body))
+	// Reads response and unmarshal it to spotify model.
+	//fmt.Println(resp)
+	body, _ := ioutil.ReadAll(resp.Body)
+	genius := new(Genius)
+	json.Unmarshal(body, &genius)
+	//fmt.Println(string(body))
+	//fmt.Println(genius.Response)
+	fmt.Println(l.SongName, l.ArtistName)
+	if len(genius.Response.Hits) != 0 {
+		for _, value := range genius.Response.Hits {
+			if value.Type == "song" {
+				fmt.Println(value.Type, value.Result.ID)
+				l.GeniusID = value.Result.ID
+				return nil
+			}
 		}
-	})
-
-	c.OnHTML(".ltf .par div", func(e *colly.HTMLElement) {
-		l.Lines = append(l.Lines, e.Text)
-	})
-
-	path := "https://lyricstranslate.com/en/" + strings.Join(strings.Fields(artistName), "-") + "-lyrics.html"
-
-	c.Visit(path)
-	return l
+	}
+	return errors.New("Error.")
 }
