@@ -2,6 +2,10 @@
 <h1>{{.Artist.Name}}</h1>
 <h3>{{.Song.Name}}</h3>
 <hr>
-{{range .Song.Lyric.Lines}}
-  <p>{{.}}</p>
-{{end}}
+{{ if .Song.Lyric.IsAvaible }}
+	{{ range .Song.Lyric.Lines }}
+	  <p>{{ . }}</p>
+	{{ end }}
+{{ else }}
+	<p>Şuanki çalan şarkı için gösterebileceğimiz bir Lyric yok :(.</p>
+{{ end }}

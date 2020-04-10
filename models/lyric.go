@@ -3,30 +3,44 @@ package models
 import (
 	"github.com/gocolly/colly/v2"
 	"strings"
+	"fmt"
+	"regexp"
 )
 
 type Lyric struct {
 	Lines []string
+	IsAvaible bool
 }
 
 // Public Methods
 
 func (l Lyric) GetLyric(artistName string, songName string) Lyric {
+	// Removes values after "(..." or "-...".
+	re := regexp.MustCompile(`[-(].+`)
+	songName = re.ReplaceAllString(songName, "")
+
 	c := colly.NewCollector()
 
 	c.OnHTML("table#artistsonglist td.songName a[href]", func(e *colly.HTMLElement) {
-		if strings.ToLower(strings.TrimSpace(e.Text)) == strings.ToLower(strings.TrimSpace(songName)) {
+		eTextTrim := strings.ToLower(strings.TrimSpace(e.Text))
+		songNameTrim := strings.ToLower(strings.TrimSpace(songName))
+		if eTextTrim == songNameTrim {
 			link := "https://lyricstranslate.com/" + e.Attr("href")
 			c.Visit(link)
 		}
 	})
 
-	c.OnHTML(".ltf .par div", func(e *colly.HTMLElement) {
+	c.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
 		l.Lines = append(l.Lines, e.Text)
 	})
 
-	path := "https://lyricstranslate.com/en/" + strings.Join(strings.Fields(artistName), "-") + "-lyrics.html"
+	url := "https://lyricstranslate.com/en/" +
+				strings.Join(strings.Fields(artistName), "-") +
+				"-lyrics.html"
+	c.Visit(fmt.Sprint(url))
 
-	c.Visit(path)
+	if len(l.Lines) != 0 {
+		l.IsAvaible = true
+	}
 	return l
 }
