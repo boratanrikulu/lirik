@@ -9,6 +9,7 @@ import (
 
 type Lyric struct {
 	Lines []string
+	IsAvaible bool
 }
 
 // Public Methods
@@ -37,5 +38,9 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 				strings.Join(strings.Fields(artistName), "-") +
 				"-lyrics.html"
 	c.Visit(fmt.Sprint(url))
+
+	if len(l.Lines) != 0 {
+		l.IsAvaible = true
+	}
 	return l
 }
