@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"net/url"
+	"fmt"
 	"github.com/boratanrikulu/s-lyrics/models"
 	"html/template"
 	"net/http"
@@ -37,6 +39,10 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirects to lyrics page.
-	path := "?artistName=" + artistName + "&songName=" + songName
-	http.Redirect(w, r, "/lyric"+path, http.StatusFound)
+	u, _ := url.Parse("/lyric")
+	q, _ := url.ParseQuery(u.RawQuery)
+	q.Add("artistName", artistName)
+	q.Add("songName", songName)
+	u.RawQuery = q.Encode()
+	http.Redirect(w, r, fmt.Sprint(u), http.StatusFound)
 }
