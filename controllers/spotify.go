@@ -38,5 +38,5 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 
 	// Redirects to lyrics page.
 	path := "?artistName=" + artistName + "&songName=" + songName
-	http.Redirect(w, r, "/lyrics"+path, http.StatusFound)
+	http.Redirect(w, r, "/lyric"+path, http.StatusFound)
 }
