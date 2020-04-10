@@ -1,11 +1,38 @@
-<a href="/"><</a>
-<h1>{{.Artist.Name}}</h1>
-<h3>{{.Song.Name}}</h3>
-<hr>
-{{ if .Song.Lyric.IsAvaible }}
-	{{ range .Song.Lyric.Lines }}
-	  <p>{{ . }}</p>
-	{{ end }}
-{{ else }}
-	<p>Şuanki çalan şarkı için gösterebileceğimiz bir Lyric yok :(.</p>
-{{ end }}
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<title>S Lyrics</title>
+</head>
+<body>
+	<div class="song">
+		<a href="/"><</a>
+		<h1>{{.Artist.Name}}</h1>
+		<h3>{{.Song.Name}}</h3>
+		<hr>
+		{{ if .Song.Lyric.IsAvaible }}
+			{{ range .Song.Lyric.Lines }}
+			  <p>{{ . }}</p>
+			{{ end }}
+		{{ else }}
+			<p>Şuanki çalan şarkı için gösterebileceğimiz bir Lyric yok :(.</p>
+		{{ end }}
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	(function worker() {
+  $.ajax({
+    url: '/spotify', 
+    success: function(data) {
+      $('.song').html(data);
+    },
+    complete: function() {
+      // Schedule the next request when the current one's complete
+      setTimeout(worker, 3000);
+    }
+  });
+})();
+</script>
+

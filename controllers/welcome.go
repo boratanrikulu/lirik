@@ -20,6 +20,7 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 	spotify.InitSecrets()
 
 	authLink, err := spotify.GetRequestAuthorizationLink()
+	setStateCookie(w, spotify.Authorization)
 	if err != nil {
 		panic("Something is wrong")
 	}
