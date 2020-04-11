@@ -1,4 +1,4 @@
-package controllers
+package helpers
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/boratanrikulu/s-lyrics/models"
 )
 
-func setTokenCookies(w http.ResponseWriter, r models.RefreshAndAccessTokens) {
+func SetTokenCookies(w http.ResponseWriter, r models.RefreshAndAccessTokens) {
 	cookies := []http.Cookie {
 		http.Cookie {
 			Name: "AccessToken",
@@ -22,7 +22,7 @@ func setTokenCookies(w http.ResponseWriter, r models.RefreshAndAccessTokens) {
 	}
 }
 
-func setStateCookie(w http.ResponseWriter, r models.Authorization) {
+func SetStateCookie(w http.ResponseWriter, r models.Authorization) {
 	cookie := http.Cookie {
 		Name: "State",
 		Value: r.Request.State,
