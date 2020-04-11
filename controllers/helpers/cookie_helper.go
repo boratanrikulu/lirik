@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/boratanrikulu/s-lyrics/models"
 )
@@ -28,4 +29,13 @@ func SetStateCookie(r models.Authorization, w http.ResponseWriter) {
 		Value: r.Request.State,
 	}
 	http.SetCookie(w, &cookie)
+}
+
+func ClearCookies(w http.ResponseWriter, r *http.Request) {
+	// Clears all cookies.
+	for _, cookie := range r.Cookies() {
+		cookie.Value = ""
+		cookie.Expires = time.Unix(0, 0)
+		http.SetCookie(w, cookie)
+	}
 }
