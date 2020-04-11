@@ -126,7 +126,7 @@ func showLyric(artistName string, songName string, w http.ResponseWriter) {
 
 	// Send request to lyric_controller.
 	// TODO: fix this url.
-	urlQuery := "http://localhost:3000" + fmt.Sprint(u)
+	urlQuery := "http://127.0.0.1:3000" + fmt.Sprint(u)
 	resp, _ := http.Get(urlQuery)
 	defer resp.Body.Close()
 
