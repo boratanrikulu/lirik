@@ -35,14 +35,14 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		if state.Value != auth.Response.State {
 			// TODO: Add a error message that says
 			// State code are not equal. Move!
-			// http.Redirect(w, r, "/wrong", http.StatusMovedPermanently)
+			// http.Redirect(w, r, "/wrong", http.StatusSeeOther)
 		}
 		auth.Response.Code = r.URL.Query().Get("code")
 
 		// Result is in spotify.ResponseRefreshAndAccessTokens
 		err := spotify.GetRefreshAndAccessTokensResponse()
 		if err != nil {
-			// http.Redirect(w, r, "/wrong", http.StatusMovedPermanently)
+			// http.Redirect(w, r, "/wrong", http.StatusSeeOther)
 		}
 		setTokenCookies(w, spotify.RefreshAndAccessTokens)
 	} else {
@@ -54,7 +54,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Gets current song.
 	artistName, songName, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
-		http.Redirect(w, r, "/wrong", http.StatusMovedPermanently)
+		http.Redirect(w, r, "/wrong", http.StatusSeeOther)
 	}
 
 	// Redirects to lyrics page.
@@ -63,7 +63,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// q.Add("artistName", artistName)
 	// q.Add("songName", songName)
 	// u.RawQuery = q.Encode()
-	// http.Redirect(w, r, fmt.Sprint(u), http.StatusFound)
+	// http.Redirect(w, r, fmt.Sprint(u), http.StatusSeeOtherd)
 
 	u, _ := url.Parse("/lyric")
 	q, _ := url.ParseQuery(u.RawQuery)
