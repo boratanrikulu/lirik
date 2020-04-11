@@ -128,13 +128,16 @@ func (s *Spotify) GetRefreshAndAccessTokensResponse() error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	// Reads response and unmarshal it to spotify model.
 	body, _ := ioutil.ReadAll(resp.Body)
-	json.Unmarshal(body, &s.RefreshAndAccessTokens.Response)
+	err = json.Unmarshal(body, &s.RefreshAndAccessTokens.Response)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
