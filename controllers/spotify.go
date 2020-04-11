@@ -12,7 +12,7 @@ import (
 // Public Methods
 
 func WrongGet(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("./views/wrong.html"))
+	tmpl := template.Must(template.ParseFiles("./views/gowrong.html"))
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		panic("Something is wrong")

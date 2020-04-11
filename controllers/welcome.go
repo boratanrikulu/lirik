@@ -15,7 +15,7 @@ type WelcomePageData struct {
 // Public Methods
 
 func WelcomeGet(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("./views/welcome.html"))
+	tmpl := template.Must(template.ParseFiles("./views/gowelcome.html"))
 	spotify := new(models.Spotify)
 	spotify.InitSecrets()
 
