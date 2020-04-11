@@ -15,9 +15,17 @@ type Lyric struct {
 // Public Methods
 
 func (l Lyric) GetLyric(artistName string, songName string) Lyric {
-	// Removes values after "(..." or "-...".
+	// Removes values after "(..." or "-...". from song name.
 	re := regexp.MustCompile(`[-(].+`)
 	songName = re.ReplaceAllString(songName, "")
+
+	// Removes all sepecial characters from artist name.
+	re = regexp.MustCompile(`[^a-zA-Z0-9ığüşöçĞÜŞİÖÇ ]+`)
+	artistName = re.ReplaceAllString(artistName, "")
+
+	// Removes "The" value on the beginning of the artist name.
+	re = regexp.MustCompile(`^The`)
+	artistName = re.ReplaceAllString(artistName, "")
 
 	c := colly.NewCollector()
 
