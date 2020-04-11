@@ -30,6 +30,10 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+		// Redirect to welcome page.
+		// To do not show spotify's callback query.
+		// For just cosmetic.
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
 		// Cookie is exist.
 		// Set it to the spotify object.
