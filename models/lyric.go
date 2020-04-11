@@ -27,6 +27,7 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 	re = regexp.MustCompile(`^The`)
 	artistName = re.ReplaceAllString(artistName, "")
 
+
 	c := colly.NewCollector()
 
 	c.OnHTML("table#artistsonglist td.songName a[href]", func(e *colly.HTMLElement) {
@@ -35,6 +36,14 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 		if eTextTrim == songNameTrim {
 			link := "https://lyricstranslate.com/" + e.Attr("href")
 			c.Visit(link)
+		} else {
+			re := regexp.MustCompile(`in' `)
+			songNameRegex := re.ReplaceAllString(songNameTrim, "ing ")
+			if eTextTrim == songNameRegex {
+				fmt.Println("Eşleşti")
+				link := "https://lyricstranslate.com/" + e.Attr("href")
+				c.Visit(link)
+			}
 		}
 	})
 
