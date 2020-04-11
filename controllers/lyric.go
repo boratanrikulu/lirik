@@ -30,6 +30,6 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tmpl := template.Must(template.ParseFiles("./views/gosongs.html"))
+	tmpl := template.Must(template.ParseFiles("./views/songs.html"))
 	_ = tmpl.Execute(w, pageData)
 }
