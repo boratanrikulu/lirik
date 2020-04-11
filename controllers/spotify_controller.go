@@ -12,9 +12,7 @@ import (
 
 // Public Methods
 
-func SpotifyGet(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Spotify - GET")
-	
+func SpotifyGet(w http.ResponseWriter, r *http.Request) {	
 	// Creates a spotify model with it's secrets.
 	spotify := new(models.Spotify)
 	spotify.InitSecrets()
