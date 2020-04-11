@@ -6,19 +6,10 @@ import (
 	"fmt"
 	"github.com/boratanrikulu/s-lyrics/models"
 	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
-	"html/template"
 	"net/http"
 )
 
 // Public Methods
-
-func WrongGet(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("./views/wrong.html"))
-	err := tmpl.Execute(w, nil)
-	if err != nil {
-		panic("Something is wrong")
-	}
-}
 
 func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Spotify - GET")
@@ -55,7 +46,8 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Gets current song.
 	artistName, songName, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
-		http.Redirect(w, r, "/wrong", http.StatusSeeOther)
+		helpers.ErrorPage("Çalınan bir şarkı yok.", w)
+		return
 	}
 
 	// Redirects to lyrics page.
