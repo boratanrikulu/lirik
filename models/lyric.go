@@ -2,9 +2,8 @@ package models
 
 import (
 	"github.com/gocolly/colly/v2"
-	"strings"
-	"fmt"
 	"regexp"
+	"fmt"
 )
 
 type Lyric struct {
@@ -19,31 +18,17 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 	re := regexp.MustCompile(`[-(].+`)
 	songName = re.ReplaceAllString(songName, "")
 
-	// Removes all sepecial characters from artist name.
-	re = regexp.MustCompile(`[^a-zA-Z0-9ığüşöçĞÜŞİÖÇ ]+`)
-	artistName = re.ReplaceAllString(artistName, "")
-
-	// Removes "The" value on the beginning of the artist name.
-	re = regexp.MustCompile(`^The`)
-	artistName = re.ReplaceAllString(artistName, "")
-
-
 	c := colly.NewCollector()
 
-	c.OnHTML("table#artistsonglist td.songName a[href]", func(e *colly.HTMLElement) {
-		eTextTrim := strings.ToLower(strings.TrimSpace(e.Text))
-		songNameTrim := strings.ToLower(strings.TrimSpace(songName))
-		if eTextTrim == songNameTrim {
-			link := "https://lyricstranslate.com/" + e.Attr("href")
-			c.Visit(link)
-		} else {
-			re := regexp.MustCompile(`in' `)
-			songNameRegex := re.ReplaceAllString(songNameTrim, "ing ")
-			if eTextTrim == songNameRegex {
-				fmt.Println("Eşleşti")
-				link := "https://lyricstranslate.com/" + e.Attr("href")
-				c.Visit(link)
-			}
+	url := "https://lyricstranslate.com/en/songs/0/" +
+			artistName + "/" + songName
+	
+	counter := 0
+	c.OnHTML(".ltsearch-results-line tbody tr td a[href]", func(e *colly.HTMLElement) {
+		counter++
+		if counter == 2 {
+			// That means it is song value.
+			c.Visit("https://lyricstranslate.com/" + e.Attr("href"))
 		}
 	})
 
@@ -51,9 +36,6 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 		l.Lines = append(l.Lines, e.Text)
 	})
 
-	url := "https://lyricstranslate.com/en/" +
-				strings.Join(strings.Fields(artistName), "-") +
-				"-lyrics.html"
 	c.Visit(fmt.Sprint(url))
 
 	if len(l.Lines) != 0 {
