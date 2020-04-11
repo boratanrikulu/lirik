@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"io/ioutil"
 	"net/url"
 	"log"
 	"fmt"
@@ -50,7 +49,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Show lyrics result.
-	showLyric(artistName, songName, w)
+	showLyric(artistName, songName, w, r)
 }
 
 // Private Methods
@@ -116,21 +115,15 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	return nil
 }
 
-func showLyric(artistName string, songName string, w http.ResponseWriter) {
+func showLyric(artistName string, songName string, w http.ResponseWriter, r *http.Request) {
 	// Set params.
-	u, _ := url.Parse("/lyric")
-	q, _ := url.ParseQuery(u.RawQuery)
+	q, _ := url.ParseQuery("")
 	q.Add("artistName", artistName)
 	q.Add("songName", songName)
-	u.RawQuery = q.Encode()
 
-	// Send request to lyric_controller.
-	// TODO: fix this url.
-	urlQuery := "http://127.0.0.1:3000" + fmt.Sprint(u)
-	resp, _ := http.Get(urlQuery)
-	defer resp.Body.Close()
+	// Update request with created url.
+	r.URL.RawQuery = q.Encode()
 
-	// Show the result from lyric_controller.
-	body, _ := ioutil.ReadAll(resp.Body)
-	w.Write(body)
+	// Handle request with lyric controller.
+	LyricGet(w, r)
 }
