@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
 	"html/template"
 	"net/http"
 )
@@ -20,7 +21,7 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 	spotify.InitSecrets()
 
 	authLink, err := spotify.GetRequestAuthorizationLink()
-	setStateCookie(w, spotify.Authorization)
+	helpers.SetStateCookie(w, spotify.Authorization)
 	if err != nil {
 		panic("Something is wrong")
 	}

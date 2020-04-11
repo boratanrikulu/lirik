@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"fmt"
 	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
 	"html/template"
 	"net/http"
 )
@@ -44,7 +45,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			// http.Redirect(w, r, "/wrong", http.StatusSeeOther)
 		}
-		setTokenCookies(w, spotify.RefreshAndAccessTokens)
+		helpers.SetTokenCookies(w, spotify.RefreshAndAccessTokens)
 	} else {
 		tokensResponse := &spotify.RefreshAndAccessTokens.Response
 		tokensResponse.AccessToken = accessToken.Value
