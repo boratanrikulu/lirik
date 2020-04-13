@@ -3,6 +3,8 @@ package models
 import (
 	"github.com/gocolly/colly/v2"
 	"regexp"
+	"net/url"
+	"strings"
 	"fmt"
 )
 
@@ -20,9 +22,12 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 
 	c := colly.NewCollector()
 
-	url := "https://lyricstranslate.com/en/songs/0/" +
-			artistName + "/" + songName
-	
+	artistName = url.PathEscape(artistName)
+	songName = url.PathEscape(songName)
+	url := "https://lyricstranslate.com/en/songs/0/" + artistName + "/" + songName
+	// TODO fix this issue
+	url = strings.ReplaceAll(url, "%", "%25")
+	fmt.Println(url)
 	counter := 0
 	c.OnHTML(".ltsearch-results-line tbody tr td a[href]", func(e *colly.HTMLElement) {
 		counter++
