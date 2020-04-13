@@ -1,3 +1,27 @@
+<!DOCTYPE html>
 <html>
-    <a href="{{.SpotifyAuthLink}}">Login with your spotify account.</a>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+		<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+		<title>S - Lyrics, Shows lyrics for current playing song on your Spotify account. </title>
+	</head>
+	<body>
+		<section class="section">
+			<div class="container">
+				<h1 class="title">
+					S - Lyrics
+				</h1>
+				<p class="subtitle">
+					Shows lyrics for <strong>current playing song</strong> on your Spotify account.
+				</p>
+				<div class="buttons">
+					<a href="{{ .SpotifyAuthLink }}" class="button is-light">
+					    Login with your spotify account.
+					</a>
+				</div>
+			</div>
+		</section>
+	</body>
 </html>
