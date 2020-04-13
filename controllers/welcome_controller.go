@@ -24,7 +24,8 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
-	tmpl := template.Must(template.ParseFiles("./views/welcome.html"))
+	files := helpers.GetTemplateFiles("./views/welcome.html")
+	tmpl := template.Must(template.ParseFiles(files...))
 	spotify := new(models.Spotify)
 	spotify.InitSecrets()
 

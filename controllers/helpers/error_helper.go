@@ -14,7 +14,8 @@ func ErrorPage(error string, w http.ResponseWriter) {
 	p := PageData {
 		ErrorMessage: error,
 	}
-	tpml := template.Must(template.ParseFiles("./views/error.html"))
+	files := GetTemplateFiles("./views/error.html")
+	tpml := template.Must(template.ParseFiles(files...))
 	err := tpml.Execute(w, p)
 	if err != nil {
 		log.Fatal("Error occur while rendering error page: %v", error)

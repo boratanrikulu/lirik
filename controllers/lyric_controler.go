@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
 	"html/template"
 	"net/http"
 )
@@ -30,6 +31,7 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tmpl := template.Must(template.ParseFiles("./views/songs.html"))
+	files := helpers.GetTemplateFiles("./views/songs.html")
+	tmpl := template.Must(template.ParseFiles(files...))
 	_ = tmpl.Execute(w, pageData)
 }

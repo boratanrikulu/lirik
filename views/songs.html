@@ -1,56 +1,33 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
-		<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-		<title>S - Lyrics, Shows lyrics for current playing song on your Spotify account. </title>
-	</head>
-	<body>
-		<section class="section">
-			<div class="container">
-				<h1 class="title">
-					S - Lyrics
-				</h1>
-				<p class="subtitle">
-					Shows lyrics for <strong>current playing song</strong> on your Spotify account.
+{{ define "content" }}
+
+<div class="song">
+	<section class="hero is-primary">
+		<div class="hero-body">
+			<h1 class="title">
+				{{.Song.Name}}
+			</h1>
+			<p class="subtitle">
+				by {{.Artist.Name}}
+			</p>
+		</div>
+	</section>
+	<div class="card">
+		<div class="card-content">
+			<div class="is-large">
+				<p>
+					{{ if .Song.Lyric.IsAvaible }}
+						{{ range .Song.Lyric.Lines }}
+							<p>{{ . }}</p>
+					{{ end }}
+					{{ else }}
+						<p>There is no lyric option to show.</p>
+					{{ end }}
 				</p>
-				<div class="song">				
-					<div class="buttons">
-						<a href="/spotify" class="button is-primary">
-							<strong>Refresh</strong>
-						</a>
-						<a href="/logout" class="button is-light">
-							Log out
-						</a>
-					</div>
-					<hr>
-					<section class="hero is-primary">
-						<div class="hero-body">
-							<h1 class="title">
-								{{.Song.Name}}
-							</h1>
-							<p class="subtitle">
-								by {{.Artist.Name}}
-							</p>
-						</div>
-					</section>
-					<div class="card">
-						<div class="card-content">
-							<p>
-								{{ if .Song.Lyric.IsAvaible }}
-									{{ range .Song.Lyric.Lines }}
-										<p>{{ . }}</p>
-								{{ end }}
-								{{ else }}
-									<p>Şuanki çalan şarkı için gösterebileceğimiz bir Lyric yok :(.</p>
-								{{ end }}
-							</p>
-						</div>
-					</div>
-				</div>
 			</div>
-		</section>
-	</body>
-</html>
+		</div>
+	</div>
+</div>
+
+{{ end }}
+{{ template "user" . }}
+			
