@@ -22,8 +22,16 @@
 		  </ul>
 		</div>
 		<div id="Original" class="card-content">
-			{{ range .Song.Lyric.Lines }}
-				<p> {{ . }} </p>
+			{{ if .Song.Lyric.IsAvaible }}
+				{{ range .Song.Lyric.Lines }}
+					<p> {{ . }} </p>
+				{{ end }}
+			{{ else }}
+				<article class="message is-danger">
+				  <div class="message-body">
+				    <p>There is no lyric to show.</p>
+				  </div>
+				</article>
 			{{ end }}
 		</div>
 		{{ range .Song.Lyric.Translates}}
