@@ -1,10 +1,22 @@
 {{ define "content" }}
 
-<div class="buttons">
-	<a href="{{ .SpotifyAuthLink }}" class="button is-light">
-	    Login with your spotify account.
-	</a>
-</div>
+<section class="hero is-primary">
+	<div class="hero-body">
+		<h1 class="title">
+			That is easy.
+		</h1>
+		<p class="subtitle">
+			To see lyrics, just login with your Spotify account.
+		</p>
+
+		<div class="buttons">
+		<a href="{{ .SpotifyAuthLink }}" class="button is-light">
+		    Login with your spotify account.
+		</a>
+	</div>
+
+	</div>
+</section>
 
 {{ end }}
 {{ template "main" . }}
