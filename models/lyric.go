@@ -67,11 +67,14 @@ func getTranslations(l *Lyric, url string) {
 	fmt.Println(url)
 	c := colly.NewCollector()
 
+	allowedTranslationLanguages := "Turkish English Italian Swedish German French"
 	// Translation list for the song.
 	c.OnHTML("div.song-node-info li.song-node-info-translate a[href]", func(e *colly.HTMLElement) {
 		// TODO
 		// Fix more-then-one translate issue.
-		c.Visit("https://lyricstranslate.com/" + e.Attr("href"))
+		if strings.Contains(allowedTranslationLanguages, e.Text) {
+			c.Visit("https://lyricstranslate.com/" + e.Attr("href"))
+		}
 	})
 
 	// Lyric translations for the song.
