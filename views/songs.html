@@ -11,30 +11,48 @@
 			</p>
 		</div>
 	</section>
+
 	<div class="card">
-		<div class="card-content">
-			<div class="is-large">
-				<p>
-					{{ if .Song.Lyric.IsAvaible }}
-						{{ range .Song.Lyric.Lines }}
-							<p>{{ . }}</p>
-						{{ end }}
-						{{ range .Song.Lyric.Translates }}
-							<hr>
-							<p>{{ .Language }} - {{ .Title }}</p>
-							{{ range .Lines }}
-								<p>{{ . }}</p>
-							{{ end }}
-						{{ end }}
-					{{ else }}
-						<p>There is no lyric option to show.</p>
-					{{ end }}
-				</p>
-			</div>
+		<div class="tabs">
+		  <ul>
+		    <li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original</a></li>
+		    {{ range .Song.Lyric.Translates }}
+		    	<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
+		    {{ end }}
+		  </ul>
 		</div>
+		<div id="Original" class="card-content">
+			{{ range .Song.Lyric.Lines }}
+				<p> {{ . }} </p>
+			{{ end }}
+		</div>
+		{{ range .Song.Lyric.Translates}}
+			<div id="{{.Language}}" class="card-content" style="display: none;">
+				<p class="subtitle">{{ .Title }}</p>
+				{{ range .Lines }}
+					<p> {{ . }} </p>
+				{{ end }}
+			</div>
+		{{ end }}
 	</div>
 </div>
 
 {{ end }}
 {{ template "user" . }}
+
+<script type="text/javascript">
+	function openTab(evt, tabName) {
+	  var i, x, tablinks;
+	  x = document.getElementsByClassName("card-content");
+	  for (i = 0; i < x.length; i++) {
+	      x[i].style.display = "none";
+	  }
+	  tablinks = document.getElementsByClassName("tab");
+	  for (i = 0; i < x.length; i++) {
+	      tablinks[i].className = tablinks[i].className.replace(" is-active", "");
+	  }
+	  document.getElementById(tabName).style.display = "block";
+	  evt.currentTarget.className += " is-active";
+	}
+</script>
 			
