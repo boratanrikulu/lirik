@@ -19,6 +19,7 @@ type LyricPageData struct {
 func LyricGet(w http.ResponseWriter, r *http.Request) {
 	artistName := r.URL.Query().Get("artistName")
 	songName := r.URL.Query().Get("songName")
+	albumImage := r.URL.Query().Get("albumImage")
 	lyric := new(models.Lyric)
 
 	pageData := LyricPageData{
@@ -28,6 +29,7 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 		Song: models.Song{
 			Name:  songName,
 			Lyric: lyric.GetLyric(artistName, songName),
+			AlbumImage: albumImage,
 		},
 	}
 

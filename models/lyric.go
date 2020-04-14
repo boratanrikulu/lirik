@@ -38,19 +38,23 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 	counter := 0
 	songUrl := ""
 	c.OnHTML(".ltsearch-results-line tbody tr td a[href]", func(e *colly.HTMLElement) {
+		cc := colly.NewCollector()
+
+		// Song lyric page.
+		cc.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
+			l.Lines = append(l.Lines, e.Text)
+		})
+
 		counter++
 		if counter == 2 {
 			// That means it is song value.
 			songUrl = "https://lyricstranslate.com/" + e.Attr("href")
-			c.Visit(songUrl)
+			// Visit song page.
+			cc.Visit(songUrl)
 		}
 	})
 
-	// Song lyric page.
-	c.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
-		l.Lines = append(l.Lines, e.Text)
-	})
-
+	// Vist search page.
 	c.Visit(fmt.Sprint(url))
 
 	if len(l.Lines) != 0 {
@@ -69,23 +73,26 @@ func getTranslations(l *Lyric, url string) {
 	allowedTranslationLanguages := "Turkish English Italian Swedish German French"
 	// Translation list for the song.
 	c.OnHTML("div.song-node-info li.song-node-info-translate a[href]", func(e *colly.HTMLElement) {
+		cc := colly.NewCollector()
+
+		// Lyric translations for the song.
+		cc.OnHTML("div.translate-node-text", func(e *colly.HTMLElement) {
+			translate := Translate{}
+			translate.Language = e.ChildText("div.langsmall-song span.mobile-only-inline")
+			if translate.Language != "" {
+				translate.Title = e.ChildText("h2.title-h2")
+				e.ForEach(".ltf .par div, .emptyline", func(_ int, e *colly.HTMLElement) {
+					translate.Lines = append(translate.Lines, e.Text)
+				})
+				l.Translates = append(l.Translates, translate)
+			}
+		})
+
+		fmt.Println(e.Text)
 		// TODO
 		// Fix more-then-one translate issue.
 		if strings.Contains(allowedTranslationLanguages, e.Text) {
-			c.Visit("https://lyricstranslate.com/" + e.Attr("href"))
-		}
-	})
-
-	// Lyric translations for the song.
-	c.OnHTML("div.translate-node-text", func(e *colly.HTMLElement) {
-		translate := Translate{}
-		translate.Language = e.ChildText("div.langsmall-song span.mobile-only-inline")
-		if translate.Language != "" {
-			translate.Title = e.ChildText("h2.title-h2")
-			e.ForEach(".ltf .par div, .emptyline", func(_ int, e *colly.HTMLElement) {
-				translate.Lines = append(translate.Lines, e.Text)
-			})
-			l.Translates = append(l.Translates, translate)
+			cc.Visit("https://lyricstranslate.com/" + e.Attr("href"))
 		}
 	})
 

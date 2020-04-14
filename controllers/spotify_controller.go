@@ -42,14 +42,14 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Gets user's current song.
-	artistName, songName, err := spotify.GetCurrentlyPlaying()
+	artistName, songName, albumImage, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
 		helpers.ErrorPage("No song playing.", w)
 		return
 	}
 
 	// Show lyrics result.
-	showLyric(artistName, songName, w, r)
+	showLyric(artistName, songName, albumImage, w, r)
 }
 
 // Private Methods
@@ -115,11 +115,12 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	return nil
 }
 
-func showLyric(artistName string, songName string, w http.ResponseWriter, r *http.Request) {
+func showLyric(artistName string, songName string, albumImage string, w http.ResponseWriter, r *http.Request) {
 	// Set params.
 	q, _ := url.ParseQuery("")
 	q.Add("artistName", artistName)
 	q.Add("songName", songName)
+	q.Add("albumImage", albumImage)
 
 	// Update request with created url.
 	r.URL.RawQuery = q.Encode()

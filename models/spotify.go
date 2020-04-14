@@ -57,6 +57,13 @@ type RefreshAndAccessTokens struct {
 
 type CurrentlyPlaying struct {
 	Item struct {
+		Album struct {
+			Images []struct {
+				Height int    `json:"height"`
+				URL    string `json:"url"`
+				Width  int    `json:"width"`
+			} `json:"images"`
+		} `json:"album"`
 		Artists []struct {
 			ExternalUrls struct {
 				Spotify string `json:"spotify"`
@@ -141,24 +148,29 @@ func (s *Spotify) GetRefreshAndAccessTokensResponse() error {
 	return nil
 }
 
-func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, err error) {
+func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, albumImage string, err error) {
 	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
 	req.Header.Set("Authorization", "Bearer "+s.RefreshAndAccessTokens.Response.AccessToken)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", "", errors.New("Error.")
+		return "", "", "", errors.New("Error.")
 	}
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	json.Unmarshal(body, &s.CurrentlyPlaying)
 	if s.CurrentlyPlaying.Item.Name == "" {
-		return "", "", errors.New("Error.")
+		return "", "", "", errors.New("Error.")
 	}
 
-	return s.CurrentlyPlaying.Item.Artists[0].Name, s.CurrentlyPlaying.Item.Name, nil
+	artistName = s.CurrentlyPlaying.Item.Artists[0].Name
+	songName = s.CurrentlyPlaying.Item.Name
+	albumImages := s.CurrentlyPlaying.Item.Album.Images
+	albumImage = albumImages[len(albumImages) - 2].URL
+
+	return artistName, songName, albumImage, nil
 }
 
 // Private Methods
