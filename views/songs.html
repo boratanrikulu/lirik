@@ -13,14 +13,16 @@
 	</section>
 
 	<div class="card">
-		<div class="tabs">
-		  <ul>
-		    <li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original</a></li>
-		    {{ range .Song.Lyric.Translates }}
-		    	<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
-		    {{ end }}
-		  </ul>
-		</div>
+		{{ if .Song.Lyric.Translates  }}
+			<div class="tabs">
+			  <ul>
+			    <li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original</a></li>
+			    {{ range .Song.Lyric.Translates }}
+			    	<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
+			    {{ end }}
+			  </ul>
+			</div>
+		{{ end }}
 		<div id="Original" class="card-content">
 			{{ if .Song.Lyric.IsAvaible }}
 				{{ range .Song.Lyric.Lines }}

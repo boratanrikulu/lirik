@@ -64,7 +64,6 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 // Private Methods
 
 func getTranslations(l *Lyric, url string) {
-	fmt.Println(url)
 	c := colly.NewCollector()
 
 	allowedTranslationLanguages := "Turkish English Italian Swedish German French"
