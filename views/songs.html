@@ -19,6 +19,13 @@
 						{{ range .Song.Lyric.Lines }}
 							<p>{{ . }}</p>
 						{{ end }}
+						{{ range .Song.Lyric.Translates }}
+							<hr>
+							<p>{{ .Language }} - {{ .Title }}</p>
+							{{ range .Lines }}
+								<p>{{ . }}</p>
+							{{ end }}
+						{{ end }}
 					{{ else }}
 						<p>There is no lyric option to show.</p>
 					{{ end }}
