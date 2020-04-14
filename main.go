@@ -14,7 +14,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
 	r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
-	r.HandleFunc("/lyric", controllers.LyricGet).Methods("GET")
+	// r.HandleFunc("/lyric", controllers.LyricGet).Methods("GET")
 	r.HandleFunc("/logout", controllers.LogoutGet).Methods("GET")
 	serve(r, "3000")
 }
