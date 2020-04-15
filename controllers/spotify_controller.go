@@ -68,10 +68,8 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	if authResponse.Code == "" {
 		// That means user did not auth him/her spotify account,
 		// and trying to open /spotify path.
-		// Show an error and do not anything.
-		errorMessage := "Seems like you do not auth your spotify account."
-		errorMessage += "\nPlease go to welcome page and click to \"Login with Spotify Account\" button."
-		helpers.ErrorPage(errorMessage, w)
+		// Redirect back to "/".
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return fmt.Errorf("Error.", nil)
 	}
 
