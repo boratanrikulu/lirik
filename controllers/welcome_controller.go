@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/boratanrikulu/s-lyrics/models"
 	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
+	"github.com/boratanrikulu/s-lyrics/models"
 	"html/template"
 	"net/http"
 )
@@ -21,7 +21,7 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 	accessTokenCookie, _ := r.Cookie("AccessToken")
 	if accessTokenCookie != nil {
 		http.Redirect(w, r, "/spotify", http.StatusSeeOther)
-		return 
+		return
 	}
 
 	files := helpers.GetTemplateFiles("./views/welcome.html")

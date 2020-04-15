@@ -1,23 +1,23 @@
 package models
 
 import (
-	"github.com/gocolly/colly/v2"
-	"regexp"
-	"net/url"
-	"strings"
 	"fmt"
+	"github.com/gocolly/colly/v2"
+	"net/url"
+	"regexp"
+	"strings"
 )
 
 type Lyric struct {
-	Lines 		[]string
-	IsAvaible	bool
-	Translates 	[]Translate
+	Lines      []string
+	IsAvaible  bool
+	Translates []Translate
 }
 
 type Translate struct {
-	Language		string
-	Title			string
-	Lines			[]string
+	Language string
+	Title    string
+	Lines    []string
 }
 
 // Public Methods

@@ -14,13 +14,13 @@ import (
 )
 
 type Spotify struct {
-	ClientID               	string
-	ClientSecret          	string
-	RedirectURI            	string
-	Authorization          	Authorization
-	RefreshAndAccessTokens 	RefreshAndAccessTokens
-	CurrentlyPlaying       	CurrentlyPlaying
-	UpdateAccessToken		UpdateAccessToken
+	ClientID               string
+	ClientSecret           string
+	RedirectURI            string
+	Authorization          Authorization
+	RefreshAndAccessTokens RefreshAndAccessTokens
+	CurrentlyPlaying       CurrentlyPlaying
+	UpdateAccessToken      UpdateAccessToken
 }
 
 type Authorization struct {
@@ -33,8 +33,8 @@ type Authorization struct {
 		State        string
 	}
 	Response struct {
-		Code		string
-		State		string
+		Code  string
+		State string
 	}
 }
 
@@ -58,11 +58,11 @@ type RefreshAndAccessTokens struct {
 
 type UpdateAccessToken struct {
 	Request struct {
-		URL				string
-		GrantType   	string
-		RefreshToken	string
-		Authorization	string
-		ContentType 	string
+		URL           string
+		GrantType     string
+		RefreshToken  string
+		Authorization string
+		ContentType   string
 	}
 	Response struct {
 		AccessToken  string `json:"access_token"`
@@ -216,7 +216,7 @@ func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, alb
 	artistName = s.CurrentlyPlaying.Item.Artists[0].Name
 	songName = s.CurrentlyPlaying.Item.Name
 	albumImages := s.CurrentlyPlaying.Item.Album.Images
-	albumImage = albumImages[len(albumImages) - 2].URL
+	albumImage = albumImages[len(albumImages)-2].URL
 
 	return artistName, songName, albumImage, nil
 }

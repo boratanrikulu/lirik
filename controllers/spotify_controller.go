@@ -1,17 +1,17 @@
 package controllers
 
 import (
-	"net/url"
-	"log"
 	"fmt"
-	"github.com/boratanrikulu/s-lyrics/models"
 	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
+	"github.com/boratanrikulu/s-lyrics/models"
+	"log"
 	"net/http"
+	"net/url"
 )
 
 // Public Methods
 
-func SpotifyGet(w http.ResponseWriter, r *http.Request) {	
+func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Creates a spotify model with it's secrets.
 	spotify := new(models.Spotify)
 	spotify.InitSecrets()
@@ -21,7 +21,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	refreshTokenCookie, _ := r.Cookie("RefreshToken")
 
 	// Check tokens situation.
-	if accessTokenCookie == nil && refreshTokenCookie == nil  {
+	if accessTokenCookie == nil && refreshTokenCookie == nil {
 		// Cookie is not exist.
 		// That means user does not have tokens.
 		// We will send a request with code value to take tokens.
@@ -52,7 +52,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		err := updateTokens(spotify, w, r)
 		fmt.Println(err)
 		if err != nil {
-			return 
+			return
 		}
 		// Else,
 		// Redirect to welcome page.

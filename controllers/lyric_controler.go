@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/boratanrikulu/s-lyrics/models"
 	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
+	"github.com/boratanrikulu/s-lyrics/models"
 	"html/template"
 	"net/http"
 )
@@ -27,8 +27,8 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 			Name: artistName,
 		},
 		Song: models.Song{
-			Name:  songName,
-			Lyric: lyric.GetLyric(artistName, songName),
+			Name:       songName,
+			Lyric:      lyric.GetLyric(artistName, songName),
 			AlbumImage: albumImage,
 		},
 	}

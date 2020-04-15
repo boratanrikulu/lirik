@@ -15,7 +15,7 @@ func main() {
 	r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
 	r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
 	r.HandleFunc("/logout", controllers.LogoutGet).Methods("GET")
-	r.PathPrefix("/assets").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets/")))) 
+	r.PathPrefix("/assets").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets/"))))
 	serve(r, "3000")
 }
 

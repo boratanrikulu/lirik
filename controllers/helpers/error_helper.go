@@ -1,9 +1,9 @@
 package helpers
 
 import (
+	"html/template"
 	"log"
 	"net/http"
-	"html/template"
 )
 
 type PageData struct {
@@ -11,7 +11,7 @@ type PageData struct {
 }
 
 func ErrorPage(error string, w http.ResponseWriter) {
-	p := PageData {
+	p := PageData{
 		ErrorMessage: error,
 	}
 	files := GetTemplateFiles("./views/error.html")
