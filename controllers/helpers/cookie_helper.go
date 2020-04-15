@@ -28,6 +28,34 @@ func SetTokenCookies(r models.RefreshAndAccessTokens, w http.ResponseWriter) {
 	}
 }
 
+func UpdateTokenCookies(u models.UpdateAccessToken, w http.ResponseWriter) {
+	cookies := []http.Cookie {
+		http.Cookie {
+			Name: "AccessToken",
+			Value: u.Response.AccessToken,
+			// MaxAge of access token is 1 hour.
+			MaxAge: u.Response.ExpiresIn,
+		},
+	}
+
+	// If there is a new refresh token.
+	// Update it too.
+	if u.Response.RefreshToken != "" {
+		oneMonth := time.Hour * 24 * 30
+		cookie := http.Cookie{
+			Name: "RefreshToken",
+			Value: u.Response.RefreshToken,
+			// We will set max age for refresh token 1 month.
+			MaxAge: int(oneMonth.Seconds()),
+		}
+		cookies = append(cookies, cookie)
+	}
+
+	for _, cookie := range cookies {
+		http.SetCookie(w, &cookie)
+	}
+}
+
 func SetStateCookie(r models.Authorization, w http.ResponseWriter) {
 	cookie := http.Cookie {
 		Name: "State",

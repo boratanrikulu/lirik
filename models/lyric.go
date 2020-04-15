@@ -88,7 +88,6 @@ func getTranslations(l *Lyric, url string) {
 			}
 		})
 
-		fmt.Println(e.Text)
 		// TODO
 		// Fix more-then-one translate issue.
 		if strings.Contains(allowedTranslationLanguages, e.Text) {

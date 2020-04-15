@@ -21,7 +21,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	refreshTokenCookie, _ := r.Cookie("RefreshToken")
 
 	// Check tokens situation.
-	if accessTokenCookie == nil || refreshTokenCookie == nil  {
+	if accessTokenCookie == nil && refreshTokenCookie == nil  {
 		// Cookie is not exist.
 		// That means user does not have tokens.
 		// We will send a request with code value to take tokens.
@@ -29,16 +29,50 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+		// Else,
 		// Redirect to welcome page.
 		// To do not show spotify's callback query.
 		// For just cosmetic.
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	} else if accessTokenCookie == nil && refreshTokenCookie != nil {
+		fmt.Println("Update")
+		// That means we have refresh token,
+		// but our access token has expired.
+		// We need to send a request to spotify
+		// to take new access token.
+		// We will use refresh token to take access token.
+		// Response will be include access token.
+		// Also, response might be include refresh token.
+		// If response has refresh token, we will update our refresh token.
+
+		// Set refresh token to spotify object.
+		tokenResponse := &spotify.RefreshAndAccessTokens.Response
+		tokenResponse.RefreshToken = refreshTokenCookie.Value
+
+		err := updateTokens(spotify, w, r)
+		fmt.Println(err)
+		if err != nil {
+			return 
+		}
+		// Else,
+		// Redirect to welcome page.
+		// We couldn't get access token.
+		// TODO show an error message on welcome page.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
 		// Cookie is exist.
 		// Set it to the spotify object.
 		tokenResponse := &spotify.RefreshAndAccessTokens.Response
 		tokenResponse.AccessToken = accessTokenCookie.Value
-		tokenResponse.RefreshToken = refreshTokenCookie.Value
+		// Set refresh token if it is not empty.
+		// We do not need to refresh token to showing song.
+		// So,
+		// If there is only access token and not have refresh token,
+		// it is not a problem.
+		// That means user will be login for access token's expire time.
+		if refreshTokenCookie != nil {
+			tokenResponse.RefreshToken = refreshTokenCookie.Value
+		}
 	}
 
 	// Gets user's current song.
@@ -53,6 +87,33 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // Private Methods
+
+func showLyric(artistName string, songName string, albumImage string, w http.ResponseWriter, r *http.Request) {
+	// Set params.
+	q, _ := url.ParseQuery("")
+	q.Add("artistName", artistName)
+	q.Add("songName", songName)
+	q.Add("albumImage", albumImage)
+
+	// Update request with created url.
+	r.URL.RawQuery = q.Encode()
+
+	// Handle request with lyric controller.
+	LyricGet(w, r)
+}
+
+func updateTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request) error {
+	fmt.Println("update")
+	err := spotify.GetUpdateTokens()
+	if err != nil {
+		return err
+	}
+	// Everthinng is okay,
+	// Set access token to cookies.
+	// Also, it will update access token if response has a new access token.
+	helpers.UpdateTokenCookies(spotify.UpdateAccessToken, w)
+	return nil
+}
 
 func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request) error {
 	// That means user does not have tokens.
@@ -111,18 +172,5 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	// Then set the tokens to cookie for later usage..
 	helpers.SetTokenCookies(spotify.RefreshAndAccessTokens, w)
 	return nil
-}
 
-func showLyric(artistName string, songName string, albumImage string, w http.ResponseWriter, r *http.Request) {
-	// Set params.
-	q, _ := url.ParseQuery("")
-	q.Add("artistName", artistName)
-	q.Add("songName", songName)
-	q.Add("albumImage", albumImage)
-
-	// Update request with created url.
-	r.URL.RawQuery = q.Encode()
-
-	// Handle request with lyric controller.
-	LyricGet(w, r)
 }

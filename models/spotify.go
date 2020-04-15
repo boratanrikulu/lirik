@@ -14,12 +14,13 @@ import (
 )
 
 type Spotify struct {
-	ClientID               string
-	ClientSecret           string
-	RedirectURI            string
-	Authorization          Authorization
-	RefreshAndAccessTokens RefreshAndAccessTokens
-	CurrentlyPlaying       CurrentlyPlaying
+	ClientID               	string
+	ClientSecret          	string
+	RedirectURI            	string
+	Authorization          	Authorization
+	RefreshAndAccessTokens 	RefreshAndAccessTokens
+	CurrentlyPlaying       	CurrentlyPlaying
+	UpdateAccessToken		UpdateAccessToken
 }
 
 type Authorization struct {
@@ -45,6 +46,23 @@ type RefreshAndAccessTokens struct {
 		RedirectURI   string
 		Authorization string
 		ContentType   string
+	}
+	Response struct {
+		AccessToken  string `json:"access_token"`
+		TokenType    string `json:"token_type"`
+		ExpiresIn    int    `json:"expires_in"`
+		RefreshToken string `json:"refresh_token"`
+		Scope        string `json:"scope"`
+	}
+}
+
+type UpdateAccessToken struct {
+	Request struct {
+		URL				string
+		GrantType   	string
+		RefreshToken	string
+		Authorization	string
+		ContentType 	string
 	}
 	Response struct {
 		AccessToken  string `json:"access_token"`
@@ -148,6 +166,36 @@ func (s *Spotify) GetRefreshAndAccessTokensResponse() error {
 	return nil
 }
 
+func (s *Spotify) GetUpdateTokens() error {
+	setUpdateTokens(s)
+	u := s.UpdateAccessToken.Request
+
+	params := url.Values{}
+	params.Add("grant_type", u.GrantType)
+	params.Add("refresh_token", u.RefreshToken)
+
+	req, _ := http.NewRequest("POST", u.URL,
+		bytes.NewBuffer([]byte(params.Encode())))
+	req.Header.Set("Authorization", u.Authorization)
+	req.Header.Set("Content-Type", u.ContentType)
+
+	// Sends the request.
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Reads response and unmarshal it to spotify model.
+	body, _ := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(body, &s.UpdateAccessToken.Response)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, albumImage string, err error) {
 	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me/player/currently-playing", nil)
 	req.Header.Set("Authorization", "Bearer "+s.RefreshAndAccessTokens.Response.AccessToken)
@@ -195,6 +243,18 @@ func setRefreshAndAccessTokens(s *Spotify) {
 	r.RedirectURI = "http://localhost:3000/spotify"
 	r.Authorization = encoded
 	r.ContentType = "application/x-www-form-urlencoded"
+}
+
+func setUpdateTokens(s *Spotify) {
+	secrets := s.ClientID + ":" + s.ClientSecret
+	encoded := "Basic " + base64.StdEncoding.EncodeToString([]byte(secrets))
+
+	u := &s.UpdateAccessToken.Request
+	u.URL = "https://accounts.spotify.com/api/token"
+	u.GrantType = "refresh_token"
+	u.RefreshToken = s.RefreshAndAccessTokens.Response.RefreshToken
+	u.Authorization = encoded
+	u.ContentType = "application/x-www-form-urlencoded"
 }
 
 func randomState() string {
