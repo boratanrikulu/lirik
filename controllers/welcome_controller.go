@@ -16,10 +16,11 @@ type WelcomePageData struct {
 // Public Methods
 
 func WelcomeGet(w http.ResponseWriter, r *http.Request) {
-	// If there is a Access Token.
-	// Redirect to "/spotify" page.
+	// If there is an access or refresh token,
+	// redirect to "/spotify" page.
 	accessTokenCookie, _ := r.Cookie("AccessToken")
-	if accessTokenCookie != nil {
+	refreshTokenCookie, _ := r.Cookie("RefreshToken")
+	if accessTokenCookie != nil || refreshTokenCookie != nil {
 		http.Redirect(w, r, "/spotify", http.StatusSeeOther)
 		return
 	}
