@@ -9,6 +9,15 @@ body {
 	font-size: large;
 }
 
+footer {
+	color: grey;
+	font-size: medium;
+}
+
+footer .content {
+	margin-left: 10px;
+}
+
 .album-photo img {
 	height: 160px;
 	width: 160px;
