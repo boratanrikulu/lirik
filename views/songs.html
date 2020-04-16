@@ -6,12 +6,14 @@
 			<figure class="image album-photo is-pulled-right">
 				<img src="{{.Song.AlbumImage}}">
 			</figure>
-			<h1 class="title song-title">
-				{{.Song.Name}}
-			</h1>
-			<p class="subtitle song-subtitle">
-				by {{.Artist.Name}}
-			</p>
+			<div class="song-info">
+				<h1 class="title song-title">
+					{{.Song.Name}}
+				</h1>
+				<p class="subtitle song-subtitle">
+					by {{.Artist.Name}}
+				</p>
+			</div>
 		</div>
 	</section>
 
