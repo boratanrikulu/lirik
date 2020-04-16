@@ -11,12 +11,17 @@ import (
 type Lyric struct {
 	Lines      []string
 	IsAvaible  bool
+	Language   string
 	Translates []Translate
 }
 
 type Translate struct {
 	Language string
 	Title    string
+	Author   struct {
+		Name string
+		Href string
+	}
 	Lines    []string
 }
 
@@ -43,6 +48,11 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 		// Song lyric page.
 		cc.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
 			l.Lines = append(l.Lines, e.Text)
+		})
+
+		// Song's language.
+		cc.OnHTML(".langsmall-song span.langsmall-languages", func(e *colly.HTMLElement) {
+			l.Language = e.Text
 		})
 
 		counter++
@@ -79,6 +89,8 @@ func getTranslations(l *Lyric, url string) {
 		cc.OnHTML("div.translate-node-text", func(e *colly.HTMLElement) {
 			translate := Translate{}
 			translate.Language = e.ChildText("div.langsmall-song span.mobile-only-inline")
+			translate.Author.Name = e.ChildText(".authorsubmitted a")
+			translate.Author.Href = e.ChildAttr(".authorsubmitted a[href]", "href")
 			if translate.Language != "" {
 				translate.Title = e.ChildText("h2.title-h2")
 				e.ForEach(".ltf .par div, .emptyline", func(_ int, e *colly.HTMLElement) {

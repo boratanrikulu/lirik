@@ -54,6 +54,11 @@ body {
 	font-size: 1.2em;
 }
 
+.translator {
+	font-size: x-smaller;
+	color: grey;
+}
+
 @media screen and (max-width: 550px) {
 	.album-photo img {
 		height: 120px;
