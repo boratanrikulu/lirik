@@ -15,12 +15,16 @@ func SetTokenCookies(r models.RefreshAndAccessTokens, w http.ResponseWriter) {
 			Value: r.Response.AccessToken,
 			// MaxAge of access token is 1 hour.
 			MaxAge: r.Response.ExpiresIn,
+			SameSite: http.SameSiteLaxMode,
+			HttpOnly: true,
 		},
 		{
 			Name:  "RefreshToken",
 			Value: r.Response.RefreshToken,
 			// We will set max age for refresh token 1 month.
 			MaxAge: int(oneMonth.Seconds()),
+			SameSite: http.SameSiteLaxMode,
+			HttpOnly: true,
 		},
 	}
 	for _, cookie := range cookies {
@@ -35,6 +39,8 @@ func UpdateTokenCookies(u models.UpdateAccessToken, w http.ResponseWriter) {
 			Value: u.Response.AccessToken,
 			// MaxAge of access token is 1 hour.
 			MaxAge: u.Response.ExpiresIn,
+			SameSite: http.SameSiteLaxMode,
+			HttpOnly: true,
 		},
 	}
 
@@ -47,6 +53,8 @@ func UpdateTokenCookies(u models.UpdateAccessToken, w http.ResponseWriter) {
 			Value: u.Response.RefreshToken,
 			// We will set max age for refresh token 1 month.
 			MaxAge: int(oneMonth.Seconds()),
+			SameSite: http.SameSiteLaxMode,
+			HttpOnly: true,
 		}
 		cookies = append(cookies, cookie)
 	}
@@ -60,6 +68,8 @@ func SetStateCookie(r models.Authorization, w http.ResponseWriter) {
 	cookie := http.Cookie{
 		Name:  "State",
 		Value: r.Request.State,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
 	}
 	http.SetCookie(w, &cookie)
 }
