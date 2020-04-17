@@ -228,7 +228,7 @@ func setRequestAuthorization(s *Spotify) {
 	r.BaseURL = "https://accounts.spotify.com/"
 	r.Path = "authorize"
 	r.ResponseType = "code"
-	r.Scope = "user-read-currently-playing streaming user-read-playback-state"
+	r.Scope = "user-read-currently-playing"
 	r.State = randomState()
 }
 
