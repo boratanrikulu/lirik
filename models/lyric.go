@@ -37,6 +37,10 @@ type Genius struct {
 			Type   string `json:type`
 			Result struct {
 				URL string `json:"url"`
+				Title string `json:"title"`
+				PrimaryArtist struct {
+					Name string `json:"name"`
+				} `json:"primary_artist"`
 			} `json:"result"`
 		} `json:"hits"`
 	} `json:"response"`
@@ -45,9 +49,14 @@ type Genius struct {
 // Public Methods
 
 func (l Lyric) GetLyric(artistName string, songName string) Lyric {
-	// Removes values after "(..." or "-...". from song name.
-	re := regexp.MustCompile(`[-(].+`)
+	// Removes values after " - ...". from song name.
+	rere := regexp.MustCompile(` - .+`)
+	// Remove all (...)s from song name.
+	re := regexp.MustCompile(`\(.*?\)`)
+	songName = rere.ReplaceAllString(songName, "")
 	songName = re.ReplaceAllString(songName, "")
+	// Trim spaces
+	songName = strings.TrimSpace(songName)
 
 	// Get from lyricstranslates.com
 	getFromFirstSource(&l, artistName, songName)
@@ -56,6 +65,7 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 		// If there is no lyric on the first source,
 		// then get it from genius.com
 		getFromSecondSource(&l, artistName, songName)
+		
 	}
 
 	// TODO remove "return" and user pointers.
@@ -88,7 +98,24 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 	json.Unmarshal(body, &genius)
 
 	if len(genius.Response.Hits) != 0 {
-		geniusURL := genius.Response.Hits[0].Result.URL
+		geniusURL := ""
+		for _, value := range genius.Response.Hits {
+			s := strings.ToLower(songName)
+			a := strings.ToLower(artistName)
+			resultSong := strings.ToLower(value.Result.Title)
+			resultArtist := strings.ToLower(value.Result.PrimaryArtist.Name)
+
+			// Yes. But true.
+			// Genius use "’" for "'".
+			// Btw, How's the Heart?
+			s = strings.ReplaceAll(s, "'", "’")
+			a = strings.ReplaceAll(a, "'", "’")
+
+			if resultSong == s && resultArtist == a {
+				geniusURL = value.Result.URL
+				break
+			}
+		}
 
 		if geniusURL == "" {
 			return
@@ -96,27 +123,14 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 
 		c := colly.NewCollector()
 
-		c.OnHTML("body", func(e *colly.HTMLElement) {
-			isRightPage := false
-			e.ForEach("div.header_with_cover_art-primary_info h2", func(_ int, e *colly.HTMLElement) {
-				titleOnSource := strings.TrimSpace(e.Text)
-				if strings.Contains(titleOnSource, artistName) {
-					isRightPage = true
+		c.OnHTML("div.song_body-lyrics div.lyrics p", func(e *colly.HTMLElement) {
+			lines := strings.SplitAfter(e.Text, "\n")
+			for _, line := range lines {
+				if line == "\n" {
+					line = ""
 				}
-			})
-
-			if isRightPage {
-				e.ForEach("div.song_body-lyrics div.lyrics p", func(_ int, e *colly.HTMLElement) {
-					lines := strings.SplitAfter(e.Text, "\n")
-					for _, line := range lines {
-						if line == "\n" {
-							line = ""
-						}
-						l.Lines = append(l.Lines, line)
-					}
-				})
+				l.Lines = append(l.Lines, line)
 			}
-
 		})
 
 		c.Visit(geniusURL)
