@@ -77,7 +77,13 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Gets user's current song.
 	artistName, songName, albumImage, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
-		helpers.ErrorPage("No song playing.", w)
+		errorMessages := []string {
+			"There is no song playing.",
+			"You need to play a song! 😅",
+			"",
+			"Open your spotify account and play a song. 🎶 🎉",
+		}
+		helpers.ErrorPage(errorMessages, w)
 		return
 	}
 
@@ -138,9 +144,11 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 		// If there is no state cookie that means user has deleted it.
 		// Show error and do not anything.
 		log.Printf("[ERROR] Error occur. User deleted it's state cookie: %v", err)
-		errorMessage := "There is no state cookie."
-		errorMessage += "\nPlease do not remove your state cookie."
-		helpers.ErrorPage(errorMessage, w)
+		errorMessages := []string{
+			"There is no state cookie.",
+			"Please do not remove your state cookie.",
+		}
+		helpers.ErrorPage(errorMessages, w)
 		return err
 	}
 
@@ -148,9 +156,11 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 		// If it not same that might be an attack.
 		// Show the error message and do not anything.
 		log.Print("[ERROR] User's state and request state are not same.")
-		errorMessage := "Your state cookie and the response are not same."
-		errorMessage += "\nYou might be under attack."
-		helpers.ErrorPage(errorMessage, w)
+		errorMessages := []string{
+			"Your state cookie and the response are not same.",
+			"You might be under attack.",
+		}
+		helpers.ErrorPage(errorMessages, w)
 		return err
 	}
 
@@ -162,9 +172,11 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 		// If there is a error, log it.
 		// Say to user, we have some issues.
 		log.Printf("[ERROR] Error occur while taking response from spotify: %v", err)
-		errorMessage := "There is some issues while taking response from Spotify."
-		errorMessage += "\nPlease try later."
-		helpers.ErrorPage(errorMessage, w)
+		errorMessages := []string{
+			"There is some issues while taking response from Spotify.",
+			"Please try later.",
+		}
+		helpers.ErrorPage(errorMessages, w)
 	}
 	// If everything is okay,
 	// Then set the tokens to cookie for later usage..

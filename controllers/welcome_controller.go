@@ -36,7 +36,7 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 	helpers.SetStateCookie(spotify.Authorization, w)
 	if err != nil {
 		log.Println("Somethings are wrong. We are working on it.")
-		helpers.ErrorPage("Somethings are wrong. We are working on it.", w)
+		helpers.ErrorPage([]string{"Somethings are wrong. We are working on it."}, w)
 		return
 	}
 	_ = tmpl.Execute(w, WelcomePageData{

@@ -7,17 +7,17 @@ import (
 )
 
 type PageData struct {
-	ErrorMessage string
+	ErrorMessages []string
 }
 
-func ErrorPage(error string, w http.ResponseWriter) {
+func ErrorPage(errors []string, w http.ResponseWriter) {
 	p := PageData{
-		ErrorMessage: error,
+		ErrorMessages: errors,
 	}
 	files := GetTemplateFiles("./views/error.html")
 	tpml := template.Must(template.ParseFiles(files...))
 	err := tpml.Execute(w, p)
 	if err != nil {
-		log.Fatal("Error occur while rendering error page: %v", error)
+		log.Printf("Error occur while rendering error page: %v", err)
 	}
 }

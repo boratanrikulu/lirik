@@ -2,10 +2,12 @@
 
 <article class="message is-danger">
   <div class="message-header">
-    <p>Error</p>
+    <p>Hey!</p>
   </div>
   <div class="message-body">
-    {{ .ErrorMessage }}
+    {{ range .ErrorMessages }}
+    	<p>{{ . }}</p>
+    {{ end }}
   </div>
 </article>
 
