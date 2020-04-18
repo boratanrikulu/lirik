@@ -145,40 +145,48 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 func getFromFirstSource(l *Lyric, artistName string, songName string) {
 	c := colly.NewCollector()
 
-	// Search lyric for the song.
-	artistName = url.PathEscape("\"" + artistName + "\"")
-	songName = url.PathEscape("\"" + songName + "\"")
-	url := "https://lyricstranslate.com/en/songs/0/" + artistName + "/" + songName
-	// TODO fix this issue
+	// Search and find the lyric page url.
+	a := url.PathEscape("\"" + artistName + "\"")
+	s := url.PathEscape("\"" + songName + "\"")
+	url := "https://lyricstranslate.com/en/songs/0/" + a + "/" + s
 	url = strings.ReplaceAll(url, "%", "%25")
-	counter := 0
 	songUrl := ""
-	c.OnHTML(".ltsearch-results-line tbody tr td a[href]", func(e *colly.HTMLElement) {
-		cc := colly.NewCollector()
+	c.OnHTML(".ltsearch-results-line tbody tr", func(e *colly.HTMLElement) {
+		e.ForEach("td:nth-child(2)", func(_ int, e *colly.HTMLElement) {
+			s = strings.ToLower(songName)
+			resultSong := strings.TrimSpace(strings.ToLower(e.Text))
 
-		// Song lyric page.
-		cc.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
-			l.Lines = append(l.Lines, e.Text)
-		})
-
-		// Song's language.
-		cc.OnHTML(".langsmall-song span.langsmall-languages", func(e *colly.HTMLElement) {
-			if strings.TrimSpace(e.Text) != "" {
-				l.Language = e.Text
+			if resultSong == s {
+				songUrl = e.ChildAttr("a[href]", "href")
 			}
 		})
-
-		counter++
-		if counter == 2 {
-			// That means it is song value.
-			songUrl = "https://lyricstranslate.com/" + e.Attr("href")
-			// Visit song page.
-			cc.Visit(songUrl)
-		}
 	})
 
 	// Vist search page.
 	c.Visit(fmt.Sprint(url))
+
+	// If couldn't find the url go back.
+	if songUrl == "" {
+		return 
+	}
+
+	cc := colly.NewCollector()
+
+	// Song lyric page.
+	cc.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
+		l.Lines = append(l.Lines, e.Text)
+	})
+
+	// Song's language.
+	cc.OnHTML(".langsmall-song span.langsmall-languages", func(e *colly.HTMLElement) {
+		if strings.TrimSpace(e.Text) != "" {
+			l.Language = e.Text
+		}
+	})
+
+	songUrl = "https://lyricstranslate.com" + songUrl
+	// Visit song page. And take the lyric.
+	cc.Visit(songUrl)
 
 	if len(l.Lines) != 0 {
 		l.Source = "lyricstranslate.com"
