@@ -113,7 +113,7 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 			s = strings.ReplaceAll(s, "'", "’")
 			a = strings.ReplaceAll(a, "'", "’")
 
-			if resultSong == s && resultArtist == a {
+			if resultSong == s && strings.Contains(resultArtist, a)  {
 				geniusURL = value.Result.URL
 				break
 			}
