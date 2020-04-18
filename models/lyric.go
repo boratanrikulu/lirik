@@ -51,10 +51,16 @@ type Genius struct {
 func (l *Lyric) GetLyric(artistName string, songName string) {
 	// Removes values after " - ...". from song name.
 	rere := regexp.MustCompile(` - .+`)
-	// Remove all (...)s from song name.
-	re := regexp.MustCompile(`\(.*?\)`)
+	// Remove all (feat...)s from song name.
+	re := regexp.MustCompile(`\(feat.*?\)`)
+	// Remove all [feat..]s from song name.
+	r := regexp.MustCompile(`\[feat.*?\]`)
+	// Remove all (Remastered..)s from song name.
+	rr := regexp.MustCompile(`\(Remastered.*?\)`)
 	songName = rere.ReplaceAllString(songName, "")
 	songName = re.ReplaceAllString(songName, "")
+	songName = r.ReplaceAllString(songName, "")
+	songName = rr.ReplaceAllString(songName, "")
 	// Trim spaces
 	songName = strings.TrimSpace(songName)
 
