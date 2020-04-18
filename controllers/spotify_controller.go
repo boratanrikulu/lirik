@@ -36,7 +36,6 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		// For just cosmetic.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else if accessTokenCookie == nil && refreshTokenCookie != nil {
-		fmt.Println("Update")
 		// That means we have refresh token,
 		// but our access token has expired.
 		// We need to send a request to spotify
@@ -51,7 +50,6 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		tokenResponse.RefreshToken = refreshTokenCookie.Value
 
 		err := updateTokens(spotify, w, r)
-		fmt.Println(err)
 		if err != nil {
 			return
 		}
@@ -104,7 +102,6 @@ func showLyric(artistName string, songName string, albumImage string, w http.Res
 }
 
 func updateTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request) error {
-	fmt.Println("update")
 	err := spotify.GetUpdateTokens()
 	if err != nil {
 		return err
@@ -140,7 +137,7 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		// If there is no state cookie that means user has deleted it.
 		// Show error and do not anything.
-		log.Print("Error occur. User deleted it's state cookie: %v", err)
+		log.Printf("[ERROR] Error occur. User deleted it's state cookie: %v", err)
 		errorMessage := "There is no state cookie."
 		errorMessage += "\nPlease do not remove your state cookie."
 		helpers.ErrorPage(errorMessage, w)
@@ -150,7 +147,7 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	if state.Value != authResponse.State {
 		// If it not same that might be an attack.
 		// Show the error message and do not anything.
-		log.Print("User's state and request state are not same.")
+		log.Print("[ERROR] User's state and request state are not same.")
 		errorMessage := "Your state cookie and the response are not same."
 		errorMessage += "\nYou might be under attack."
 		helpers.ErrorPage(errorMessage, w)
@@ -164,7 +161,7 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		// If there is a error, log it.
 		// Say to user, we have some issues.
-		log.Print("Error occur while taking response from spotify: %v", err)
+		log.Printf("[ERROR] Error occur while taking response from spotify: %v", err)
 		errorMessage := "There is some issues while taking response from Spotify."
 		errorMessage += "\nPlease try later."
 		helpers.ErrorPage(errorMessage, w)

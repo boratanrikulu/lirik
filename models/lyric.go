@@ -36,8 +36,8 @@ type Genius struct {
 		Hits []struct {
 			Type   string `json:type`
 			Result struct {
-				URL string `json:"url"`
-				Title string `json:"title"`
+				URL           string `json:"url"`
+				Title         string `json:"title"`
 				PrimaryArtist struct {
 					Name string `json:"name"`
 				} `json:"primary_artist"`
@@ -48,7 +48,7 @@ type Genius struct {
 
 // Public Methods
 
-func (l Lyric) GetLyric(artistName string, songName string) Lyric {
+func (l *Lyric) GetLyric(artistName string, songName string) {
 	// Removes values after " - ...". from song name.
 	rere := regexp.MustCompile(` - .+`)
 	// Remove all (...)s from song name.
@@ -59,17 +59,13 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 	songName = strings.TrimSpace(songName)
 
 	// Get from lyricstranslates.com
-	getFromFirstSource(&l, artistName, songName)
+	getFromFirstSource(l, artistName, songName)
 
 	if !l.IsAvaible {
 		// If there is no lyric on the first source,
 		// then get it from genius.com
-		getFromSecondSource(&l, artistName, songName)
-		
+		getFromSecondSource(l, artistName, songName)
 	}
-
-	// TODO remove "return" and user pointers.
-	return l
 }
 
 // Private Methods
@@ -89,7 +85,7 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -167,7 +163,7 @@ func getFromFirstSource(l *Lyric, artistName string, songName string) {
 
 	// If couldn't find the url go back.
 	if songUrl == "" {
-		return 
+		return
 	}
 
 	cc := colly.NewCollector()

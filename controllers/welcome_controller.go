@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
@@ -34,12 +35,11 @@ func WelcomeGet(w http.ResponseWriter, r *http.Request) {
 	authLink, err := spotify.GetRequestAuthorizationLink()
 	helpers.SetStateCookie(spotify.Authorization, w)
 	if err != nil {
-		panic("Something is wrong")
+		log.Println("Somethings are wrong. We are working on it.")
+		helpers.ErrorPage("Somethings are wrong. We are working on it.", w)
+		return
 	}
-	err = tmpl.Execute(w, WelcomePageData{
+	_ = tmpl.Execute(w, WelcomePageData{
 		SpotifyAuthLink: authLink,
 	})
-	if err != nil {
-		panic("Something is wrong")
-	}
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
@@ -21,7 +22,9 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 	artistName := r.URL.Query().Get("artistName")
 	songName := r.URL.Query().Get("songName")
 	albumImage := r.URL.Query().Get("albumImage")
-	lyric := new(models.Lyric)
+
+	l := new(models.Lyric)
+	l.GetLyric(artistName, songName)
 
 	pageData := LyricPageData{
 		Artist: models.Artist{
@@ -29,9 +32,15 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 		},
 		Song: models.Song{
 			Name:       songName,
-			Lyric:      lyric.GetLyric(artistName, songName),
+			Lyric:      *l,
 			AlbumImage: albumImage,
 		},
+	}
+
+	if !l.IsAvaible {
+		log.Printf("[NOT FOUND] \"%v by %v\"", songName, artistName)
+	} else {
+		log.Printf("[FOUND] \"%v by %v\"", songName, artistName)
 	}
 
 	files := helpers.GetTemplateFiles("./views/songs.html")
