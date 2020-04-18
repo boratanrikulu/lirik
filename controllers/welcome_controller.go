@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
-	"github.com/boratanrikulu/s-lyrics/models"
 	"html/template"
 	"net/http"
+
+	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
+	"github.com/boratanrikulu/s-lyrics/models"
 )
 
 // Page Datas

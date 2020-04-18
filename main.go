@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/boratanrikulu/s-lyrics/controllers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+
+	"github.com/boratanrikulu/s-lyrics/controllers"
 )
 
 func main() {

@@ -3,13 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gocolly/colly/v2"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/gocolly/colly/v2"
 )
 
 type Lyric struct {

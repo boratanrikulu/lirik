@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
-	"github.com/boratanrikulu/s-lyrics/models"
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
+	"github.com/boratanrikulu/s-lyrics/models"
 )
 
 // Public Methods

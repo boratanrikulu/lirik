@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
 	"net/http"
+
+	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
 )
 
 // Public Methods
