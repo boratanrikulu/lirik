@@ -1,9 +1,13 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gocolly/colly/v2"
+	"io/ioutil"
+	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -13,6 +17,7 @@ type Lyric struct {
 	IsAvaible  bool
 	Language   string
 	Translates []Translate
+	Source     string
 }
 
 type Translate struct {
@@ -22,7 +27,18 @@ type Translate struct {
 		Name string
 		Href string
 	}
-	Lines    []string
+	Lines []string
+}
+
+type Genius struct {
+	Response struct {
+		Hits []struct {
+			Type   string `json:type`
+			Result struct {
+				URL string `json:"url"`
+			} `json:"result"`
+		} `json:"hits"`
+	} `json:"response"`
 }
 
 // Public Methods
@@ -32,6 +48,86 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 	re := regexp.MustCompile(`[-(].+`)
 	songName = re.ReplaceAllString(songName, "")
 
+	// Get from lyricstranslates.com
+	getFromFirstSource(&l, artistName, songName)
+
+	if !l.IsAvaible {
+		// If there is no lyric on the first source,
+		// then get it from genius.com
+		getFromSecondSource(&l, artistName, songName)
+	}
+
+	// TODO remove "return" and user pointers.
+	return l
+}
+
+// Private Methods
+
+func getFromSecondSource(l *Lyric, artistName string, songName string) {
+	u, _ := url.Parse("https://api.genius.com/search")
+	q, _ := url.ParseQuery(u.RawQuery)
+
+	q.Add("q", "\""+songName+" "+artistName+"\"")
+	u.RawQuery = q.Encode()
+
+	auth := "Bearer " + os.Getenv("GENIUS_ACCESS")
+	req, _ := http.NewRequest("GET", fmt.Sprint(u), nil)
+	req.Header.Set("Authorization", auth)
+
+	// Sends the request.
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	genius := new(Genius)
+	json.Unmarshal(body, &genius)
+
+	if len(genius.Response.Hits) != 0 {
+		geniusURL := genius.Response.Hits[0].Result.URL
+
+		if geniusURL == "" {
+			return
+		}
+
+		c := colly.NewCollector()
+
+		c.OnHTML("body", func(e *colly.HTMLElement) {
+			isRightPage := false
+			e.ForEach("div.header_with_cover_art-primary_info h2", func(_ int, e *colly.HTMLElement) {
+				titleOnSource := strings.TrimSpace(e.Text)
+				if strings.Contains(titleOnSource, artistName) {
+					isRightPage = true
+				}
+			})
+
+			if isRightPage {
+				e.ForEach("div.song_body-lyrics div.lyrics p", func(_ int, e *colly.HTMLElement) {
+					lines := strings.SplitAfter(e.Text, "\n")
+					for _, line := range lines {
+						if line == "\n" {
+							line = ""
+						}
+						l.Lines = append(l.Lines, line)
+					}
+				})
+			}
+
+		})
+
+		c.Visit(geniusURL)
+	}
+
+	if len(l.Lines) != 0 {
+		l.Source = "genius.com"
+		l.IsAvaible = true
+	}
+}
+
+func getFromFirstSource(l *Lyric, artistName string, songName string) {
 	c := colly.NewCollector()
 
 	// Search lyric for the song.
@@ -52,7 +148,9 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 
 		// Song's language.
 		cc.OnHTML(".langsmall-song span.langsmall-languages", func(e *colly.HTMLElement) {
-			l.Language = e.Text
+			if strings.TrimSpace(e.Text) != "" {
+				l.Language = e.Text
+			}
 		})
 
 		counter++
@@ -68,14 +166,12 @@ func (l Lyric) GetLyric(artistName string, songName string) Lyric {
 	c.Visit(fmt.Sprint(url))
 
 	if len(l.Lines) != 0 {
+		l.Source = "lyricstranslate.com"
 		l.IsAvaible = true
 		// Gets avaible translations for the song.
-		getTranslations(&l, songUrl)
+		getTranslations(l, songUrl)
 	}
-	return l
 }
-
-// Private Methods
 
 func getTranslations(l *Lyric, url string) {
 	c := colly.NewCollector()

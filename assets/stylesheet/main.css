@@ -18,6 +18,10 @@ footer .content {
 	margin-left: 10px;
 }
 
+p:empty:before {
+  content: "\200b"; /* unicode zero width space character */
+}
+
 .album-photo img {
 	height: 160px;
 	width: 160px;

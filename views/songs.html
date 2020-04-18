@@ -18,20 +18,24 @@
 	</section>
 
 	<div class="card">
-		<div class="tabs">
-		  <ul>
-		  	{{ if .Song.Lyric.Language }}
-		    	<li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original ({{ .Song.Lyric.Language }})</a></li>
-		    {{ end }}
-		    {{ range .Song.Lyric.Translates }}
-		    	<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
-		    {{ end }}
-		  </ul>
-		</div>
+		{{ if and .Song.Lyric.IsAvaible .Song.Lyric.Translates }}
+			<div class="tabs">
+				<ul>
+					<li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original ({{ .Song.Lyric.Language }})</a></li>
+					{{ range .Song.Lyric.Translates }}
+						<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
+					{{ end }}
+				</ul>
+			</div>
+		{{ end }}
 		<div id="Original" class="card-content">
 			{{ if .Song.Lyric.IsAvaible }}
 				{{ range .Song.Lyric.Lines }}
-					<p> {{ . }} </p>
+					<p>{{ . }}</p>
+				{{ end }}
+				{{ if .Song.Lyric.Source }}
+					<hr>
+					<p>These lyrics were taken from <a href="https://{{ .Song.Lyric.Source }}">{{ .Song.Lyric.Source }}</a>.</p>
 				{{ end }}
 			{{ else }}
 				<article class="message is-danger">
