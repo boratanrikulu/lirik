@@ -49,20 +49,7 @@ type Genius struct {
 // Public Methods
 
 func (l *Lyric) GetLyric(artistName string, songName string) {
-	// Removes values after " - ...". from song name.
-	rere := regexp.MustCompile(` - .+`)
-	// Remove all (feat...)s from song name.
-	re := regexp.MustCompile(`\(feat.*?\)`)
-	// Remove all [feat..]s from song name.
-	r := regexp.MustCompile(`\[feat.*?\]`)
-	// Remove all (Remastered..)s from song name.
-	rr := regexp.MustCompile(`\(Remastered.*?\)`)
-	songName = rere.ReplaceAllString(songName, "")
-	songName = re.ReplaceAllString(songName, "")
-	songName = r.ReplaceAllString(songName, "")
-	songName = rr.ReplaceAllString(songName, "")
-	// Trim spaces
-	songName = strings.TrimSpace(songName)
+	songName = songRegex(songName)
 
 	// Get from lyricstranslates.com
 	getFromFirstSource(l, artistName, songName)
@@ -75,6 +62,29 @@ func (l *Lyric) GetLyric(artistName string, songName string) {
 }
 
 // Private Methods
+
+func songRegex(song string) string {
+	regexList := []string{
+		` - .+`, // Removes values after " - ...". from song name.
+		`(?i)\(.*?feat.*?\)`, // Removes all (...feat...)s from song name.
+		`(?i)\[.*?feat.*?\]`, // Removes all [...feat..]s from song name.
+		`(?i)\(.*?remastered.*?\)`, // Removes all (...remastered...)s from song name.
+		`(?i)\[.*?remastered.*?\)]`, // Removes all [...remastered...]s from song name.
+		`(?i)\(.*?cover.*?\)`, // Removes all (...cover...)s from song name.
+		`(?i)\[.*?cover.*?\]`, // Removes all [...cover...]s from song name.
+	}
+	
+	// Run regexs.
+	for _, value := range regexList {
+		re := regexp.MustCompile(value)
+		song = re.ReplaceAllString(song, "")
+	}
+
+	// Trim spaces
+	song = strings.TrimSpace(song)
+
+	return song
+}
 
 func getFromSecondSource(l *Lyric, artistName string, songName string) {
 	u, _ := url.Parse("https://api.genius.com/search")
@@ -106,6 +116,7 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 			a := strings.ToLower(artistName)
 			resultSong := strings.ToLower(value.Result.Title)
 			resultArtist := strings.ToLower(value.Result.PrimaryArtist.Name)
+			resultSong = songRegex(resultSong)
 
 			// Yes. But true.
 			// Genius use "’" for "'".
@@ -157,6 +168,7 @@ func getFromFirstSource(l *Lyric, artistName string, songName string) {
 		e.ForEach("td:nth-child(2)", func(_ int, e *colly.HTMLElement) {
 			s = strings.ToLower(songName)
 			resultSong := strings.TrimSpace(strings.ToLower(e.Text))
+			resultSong = songRegex(resultSong)
 
 			if resultSong == s {
 				songUrl = e.ChildAttr("a[href]", "href")
