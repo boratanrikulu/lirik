@@ -65,15 +65,17 @@ func (l *Lyric) GetLyric(artistName string, songName string) {
 
 func songRegex(song string) string {
 	regexList := []string{
-		` - .+`, // Removes values after " - ...". from song name.
-		`(?i)\(.*?feat.*?\)`, // Removes all (...feat...)s from song name.
-		`(?i)\[.*?feat.*?\]`, // Removes all [...feat..]s from song name.
-		`(?i)\(.*?remastered.*?\)`, // Removes all (...remastered...)s from song name.
+		` - .+`,                     // Removes values after " - ...". from song name.
+		`(?i)\(.*?feat.*?\)`,        // Removes all (...feat...)s from song name.
+		`(?i)\[.*?feat.*?\]`,        // Removes all [...feat..]s from song name.
+		`(?i)\(.*?remastered.*?\)`,  // Removes all (...remastered...)s from song name.
 		`(?i)\[.*?remastered.*?\)]`, // Removes all [...remastered...]s from song name.
-		`(?i)\(.*?cover.*?\)`, // Removes all (...cover...)s from song name.
-		`(?i)\[.*?cover.*?\]`, // Removes all [...cover...]s from song name.
+		`(?i)\(.*?cover.*?\)`,       // Removes all (...cover...)s from song name.
+		`(?i)\[.*?cover.*?\]`,       // Removes all [...cover...]s from song name.
+		`(?i)\(.*?with.*?\)`,        // Removes all (...with...)s from song name.
+		`(?i)\[.*?with.*?\]`,        // Removes all [...with...]s from song name.
 	}
-	
+
 	// Run regexs.
 	for _, value := range regexList {
 		re := regexp.MustCompile(value)
@@ -124,7 +126,7 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 			s = strings.ReplaceAll(s, "'", "’")
 			a = strings.ReplaceAll(a, "'", "’")
 
-			if resultSong == s && strings.Contains(resultArtist, a)  {
+			if resultSong == s && strings.Contains(resultArtist, a) {
 				geniusURL = value.Result.URL
 				break
 			}

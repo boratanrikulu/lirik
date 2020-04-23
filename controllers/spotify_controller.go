@@ -77,7 +77,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	// Gets user's current song.
 	artistName, songName, albumImage, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
-		errorMessages := []string {
+		errorMessages := []string{
 			"There is no song playing.",
 			"You need to play a song! 😅",
 			"",
