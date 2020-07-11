@@ -46,6 +46,16 @@ type Genius struct {
 	} `json:"response"`
 }
 
+var AllowedTranslationLanguages = []string{"Turkish",
+	"English",
+	"Italian",
+	"Swedish",
+	"German",
+	"French",
+	"Russian",
+	"Spanish",
+}
+
 // Public Methods
 
 func (l *Lyric) GetLyric(artistName string, songName string) {
@@ -141,9 +151,7 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 		c.OnHTML("div.song_body-lyrics div.lyrics p", func(e *colly.HTMLElement) {
 			lines := strings.SplitAfter(e.Text, "\n")
 			for _, line := range lines {
-				if line == "\n" {
-					line = ""
-				}
+				line = strings.Trim(strings.TrimSpace(line), "\n")
 				l.Lines = append(l.Lines, line)
 			}
 		})
@@ -190,13 +198,14 @@ func getFromFirstSource(l *Lyric, artistName string, songName string) {
 
 	// Song lyric page.
 	cc.OnHTML("div#song-body .ltf .par div, .emptyline", func(e *colly.HTMLElement) {
-		l.Lines = append(l.Lines, e.Text)
+		line := strings.Trim(strings.TrimSpace(e.Text), "\n")
+		l.Lines = append(l.Lines, line)
 	})
 
 	// Song's language.
 	cc.OnHTML(".langsmall-song span.langsmall-languages", func(e *colly.HTMLElement) {
 		if strings.TrimSpace(e.Text) != "" {
-			l.Language = e.Text
+			l.Language = strings.Trim(strings.TrimSpace(e.Text), "\n")
 		}
 	})
 
@@ -215,32 +224,49 @@ func getFromFirstSource(l *Lyric, artistName string, songName string) {
 func getTranslations(l *Lyric, url string) {
 	c := colly.NewCollector()
 
-	allowedTranslationLanguages := "Turkish English Italian Swedish German French"
+	addedTranslations := []string{}
 	// Translation list for the song.
-	c.OnHTML("div.song-node-info li.song-node-info-translate a[href]", func(e *colly.HTMLElement) {
+	c.OnHTML("div.song-node div.masonry-grid div.song-list-translations-list a[href]", func(e *colly.HTMLElement) {
 		cc := colly.NewCollector()
 
 		// Lyric translations for the song.
+
 		cc.OnHTML("div.translate-node-text", func(e *colly.HTMLElement) {
-			translate := Translate{}
-			translate.Language = e.ChildText("div.langsmall-song span.mobile-only-inline")
-			translate.Author.Name = e.ChildText(".authorsubmitted a")
-			translate.Author.Href = e.ChildAttr(".authorsubmitted a[href]", "href")
-			if translate.Language != "" {
-				translate.Title = e.ChildText("h2.title-h2")
-				e.ForEach(".ltf .par div, .emptyline", func(_ int, e *colly.HTMLElement) {
-					translate.Lines = append(translate.Lines, e.Text)
+			language := e.ChildText("div.langsmall-song span.mobile-only-inline")
+			if !contains(addedTranslations, language) {
+				translate := Translate{}
+				translate.Language = language
+				e.ForEach("div.authorsubmitted a[href]", func(c int, e *colly.HTMLElement) {
+					if c == 0 {
+						translate.Author.Name = e.Text
+						translate.Author.Href = e.Attr("href")
+					}
 				})
-				l.Translates = append(l.Translates, translate)
+				if translate.Language != "" {
+					translate.Title = e.ChildText("h2.title-h2")
+					e.ForEach(".ltf .par div, .emptyline", func(_ int, e *colly.HTMLElement) {
+						line := strings.Trim(strings.TrimSpace(e.Text), "\n")
+						translate.Lines = append(translate.Lines, line)
+					})
+					l.Translates = append(l.Translates, translate)
+					addedTranslations = append(addedTranslations, translate.Language)
+				}
 			}
 		})
 
-		// TODO
-		// Fix more-then-one translate issue.
-		if strings.Contains(allowedTranslationLanguages, e.Text) {
+		if contains(AllowedTranslationLanguages, e.Text) {
 			cc.Visit("https://lyricstranslate.com/" + e.Attr("href"))
 		}
 	})
 
 	c.Visit(url)
+}
+
+func contains(array []string, value string) bool {
+	for _, v := range array {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }
