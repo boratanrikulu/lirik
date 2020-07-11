@@ -7,8 +7,11 @@ Shows lyrics for currently playing song in your spotify account.
 ## Features
 
 - Auto detects the currently playing song in the spotify account
+- 3 resources to take lyrics;
+	- Local storage  
+	> That's what we call it. Basically, it is the main database that is created by us.
+	- If the lyrics is not exist on the database, then checks lyrictranslate.com and genius.com for taking lyrics.
 - Shows lyrics and it's translations.
-- Checks lyrictranslate.com and genius.com for taking lyrics.
 - Simple UI.
 - No Ads. Never.
 
