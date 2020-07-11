@@ -78,10 +78,7 @@ func (l *Lyric) GetLyricByCheckingDatabase(artistName string, songName string) {
 	// Get from local storage source.
 	getFromDatabase(l, artistName, songName)
 
-	if l.IsAvaible {
-		// Change the source as s-lyrics if it is gotten from database.
-		l.Source = "s-lyrics.com"
-	} else {
+	if !l.IsAvaible {
 		l.GetLyric(artistName, songName)
 	}
 }
