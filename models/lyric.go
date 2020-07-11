@@ -17,7 +17,7 @@ type Lyric struct {
 	Lines      []string
 	IsAvaible  bool
 	Language   string
-	Translates []Translate
+	Translates []Translate `json:"-"`
 	Source     string
 }
 
@@ -59,15 +59,30 @@ var AllowedTranslationLanguages = []string{"Turkish",
 // Public Methods
 
 func (l *Lyric) GetLyric(artistName string, songName string) {
+	// Regex for the song name
 	songName = songRegex(songName)
 
 	// Get from lyricstranslates.com
+	// getFromFirstSource(l, artistName, songName)
 	getFromFirstSource(l, artistName, songName)
 
+	// If there is no lyric on the first source,
+	// then get it from genius.com
 	if !l.IsAvaible {
-		// If there is no lyric on the first source,
-		// then get it from genius.com
 		getFromSecondSource(l, artistName, songName)
+	}
+
+}
+
+func (l *Lyric) GetLyricByCheckingDatabase(artistName string, songName string) {
+	// Get from local storage source.
+	getFromDatabase(l, artistName, songName)
+
+	if l.IsAvaible {
+		// Change the source as s-lyrics if it is gotten from database.
+		l.Source = "s-lyrics.com"
+	} else {
+		l.GetLyric(artistName, songName)
 	}
 }
 
@@ -84,6 +99,7 @@ func songRegex(song string) string {
 		`(?i)\[.*?cover.*?\]`,       // Removes all [...cover...]s from song name.
 		`(?i)\(.*?with.*?\)`,        // Removes all (...with...)s from song name.
 		`(?i)\[.*?with.*?\]`,        // Removes all [...with...]s from song name.
+		// `[-(].+`,                    // Removes all thigns after '-'.
 	}
 
 	// Run regexs.
@@ -96,6 +112,28 @@ func songRegex(song string) string {
 	song = strings.TrimSpace(song)
 
 	return song
+}
+
+func getFromDatabase(l *Lyric, artistName string, songName string) {
+	fileName := getFileName(artistName, songName)
+
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(b, l)
+	if err != nil {
+		return
+	}
+
+	getTranslationsFromDatabase(l, fileName)
 }
 
 func getFromSecondSource(l *Lyric, artistName string, songName string) {
@@ -260,6 +298,40 @@ func getTranslations(l *Lyric, url string) {
 	})
 
 	c.Visit(url)
+}
+
+func getTranslationsFromDatabase(l *Lyric, fileName string) {
+	for _, translate := range AllowedTranslationLanguages {
+		fName := fileName + "_" + translate
+
+		f, err := os.Open(fName)
+		if err != nil {
+			continue
+		}
+		defer f.Close()
+
+		b, err := ioutil.ReadAll(f)
+		if err != nil {
+			continue
+		}
+
+		t := Translate{}
+		err = json.Unmarshal(b, &t)
+		if err != nil {
+			continue
+		}
+
+		l.Translates = append(l.Translates, t)
+	}
+}
+
+func getFileName(artist string, songName string) string {
+	fileName := artist + "-" + songName + ".json"
+	fileName = strings.ReplaceAll(fileName, "/", "_")
+	fileName = strings.ReplaceAll(fileName, "\\", "_")
+	fileName = "./database/lyrics/" + fileName
+
+	return fileName
 }
 
 func contains(array []string, value string) bool {
