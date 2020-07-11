@@ -35,7 +35,7 @@
 				{{ end }}
 				{{ if .Song.Lyric.Source }}
 					<hr>
-					<p>These lyrics were taken from <a href="https://{{ .Song.Lyric.Source }}">{{ .Song.Lyric.Source }}</a>.</p>
+					<p>These lyrics were taken from <a href="https://{{ .Song.Lyric.Source }}">{{ .Song.Lyric.Source }}</a></p>
 				{{ end }}
 			{{ else }}
 				<article class="message is-danger">
@@ -53,9 +53,9 @@
 			<div id="{{.Language}}" class="card-content" style="display: none;">
 				<p class="subtitle">{{ .Title }}</p>
 				{{ range .Lines }}
-					<p> {{ . }} </p>
+					<p>{{ . }}</p>
 				{{ end }}
-				<p class="translator">Translated by <a href="https://lyricstranslate.com{{ .Author.Href }}">{{ .Author.Name }}.</a></p>
+				<p class="translator">Translated by <a href="https://lyricstranslate.com{{ .Author.Href }}">{{ .Author.Name }}</a></p>
 			</div>
 		{{ end }}
 	</div>

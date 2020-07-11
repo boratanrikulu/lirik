@@ -24,7 +24,7 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 	albumImage := r.URL.Query().Get("albumImage")
 
 	l := new(models.Lyric)
-	l.GetLyric(artistName, songName)
+	l.GetLyricByCheckingDatabase(artistName, songName)
 
 	pageData := LyricPageData{
 		Artist: models.Artist{
