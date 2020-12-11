@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/boratanrikulu/s-lyrics/controllers"
+	"github.com/boratanrikulu/s-lyrics/controllers/api"
 )
 
 func main() {
@@ -23,10 +24,14 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
 	r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
 	r.HandleFunc("/logout", controllers.LogoutGet).Methods("GET")
+	r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
 	r.PathPrefix("/assets").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets/"))))
+
+	a := r.PathPrefix("/api").Subrouter()
+	a.HandleFunc("/search", api.Search).Methods("POST")
+	// api.HandleFunc("/write", api.WriteLyrics).Methods("POST")
 
 	serve(r, "3000")
 }
@@ -36,7 +41,9 @@ func serve(r *mux.Router, defaultPort string) {
 	if port == "" {
 		port = defaultPort // Default port if not specified
 	}
-	http.ListenAndServe(":"+port, r)
+
+	log.Println("Server started at :" + port + ".")
+	log.Fatalln(http.ListenAndServe(":"+port, r))
 }
 
 func cloneOrPullDatabase(databaseURL string) error {

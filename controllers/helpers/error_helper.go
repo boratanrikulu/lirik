@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,4 +21,13 @@ func ErrorPage(errors []string, w http.ResponseWriter) {
 	if err != nil {
 		log.Printf("Error occur while rendering error page: %v", err)
 	}
+}
+
+func WriteErrorToRes(w http.ResponseWriter, status int, message string) {
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(struct {
+		Error string
+	}{
+		Error: message,
+	})
 }
