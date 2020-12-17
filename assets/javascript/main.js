@@ -11,3 +11,9 @@ function openTab(evt, tabName) {
 	document.getElementById(tabName).style.display = "block";
  	evt.currentTarget.className += " is-active";
 }
+
+DarkReader.enable({
+    brightness: 100,
+    contrast: 90,
+    sepia: 10
+});
