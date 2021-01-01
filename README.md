@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="lirik.png" alt="repo-banner" style="height: 120px;">
+	<img src="lirik.png" alt="repo-banner">
 	<p align="center">
 		<strong><code>Shows lyrics for currently playing song in your Spotify account.</code></strong>
 	</p>
