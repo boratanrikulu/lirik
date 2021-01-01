@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -158,11 +157,11 @@ func (s *Spotify) GetRefreshAndAccessTokensResponse() error {
 	defer resp.Body.Close()
 
 	// Reads response and unmarshal it to spotify model.
-	body, _ := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body, &s.RefreshAndAccessTokens.Response)
+	err = json.NewDecoder(resp.Body).Decode(&s.RefreshAndAccessTokens.Response)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -188,11 +187,11 @@ func (s *Spotify) GetUpdateTokens() error {
 	defer resp.Body.Close()
 
 	// Reads response and unmarshal it to spotify model.
-	body, _ := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body, &s.UpdateAccessToken.Response)
+	err = json.NewDecoder(resp.Body).Decode(&s.UpdateAccessToken.Response)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -207,9 +206,8 @@ func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, alb
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	json.Unmarshal(body, &s.CurrentlyPlaying)
-	if s.CurrentlyPlaying.Item.Name == "" {
+	err = json.NewDecoder(resp.Body).Decode(&s.CurrentlyPlaying)
+	if err != nil || s.CurrentlyPlaying.Item.Name == "" {
 		return "", "", "", errors.New("Error.")
 	}
 

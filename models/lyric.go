@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -120,12 +119,7 @@ func getFromDatabase(l *Lyric, artistName string, songName string) {
 	}
 	defer f.Close()
 
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		return
-	}
-
-	err = json.Unmarshal(b, l)
+	err = json.NewDecoder(f).Decode(l)
 	if err != nil {
 		return
 	}
@@ -152,9 +146,8 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
 	genius := new(Genius)
-	json.Unmarshal(body, &genius)
+	err = json.NewDecoder(resp.Body).Decode(&genius)
 
 	if len(genius.Response.Hits) != 0 {
 		geniusURL := ""
@@ -307,13 +300,8 @@ func getTranslationsFromDatabase(l *Lyric, fileName string) {
 		}
 		defer f.Close()
 
-		b, err := ioutil.ReadAll(f)
-		if err != nil {
-			continue
-		}
-
 		t := Translate{}
-		err = json.Unmarshal(b, &t)
+		err = json.NewDecoder(f).Decode(&t)
 		if err != nil {
 			continue
 		}
