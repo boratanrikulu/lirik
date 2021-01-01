@@ -1,26 +1,22 @@
-# S-Lyrics
+<p align="center">
+	<img src="lirik.png" alt="repo-banner" style="height: 120px;">
+	<p align="center">
+		<strong><code>Shows lyrics for currently playing song in your Spotify account.</code></strong>
+	</p>
+</p>
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/boratanrikulu/S-Lyrics)](https://goreportcard.com/report/github.com/boratanrikulu/S-Lyrics)
-
-Shows lyrics for currently playing song in your spotify account.
+#
 
 ## Features
 
-- Auto detects the currently playing song in the spotify account
-- 3 resources to take lyrics;
-	- Local storage  
-	> That's what we call it. Basically, it is the main database that is created by us.
-	- If the lyrics is not exist on the database, then checks lyrictranslate.com and genius.com for taking lyrics.
-- Shows lyrics and it's translations.
+- Automaticly detects currently playing song in your Spotify account.
+- Supports manual searching.
+- Genius and Lyricstranslate are used as resources.
+- Server side caching is runnig to improve performance. The first queried song is stored in Cache forever. The access speed to songs offered from Cache is very fast!
+- Supports translations section.
+- Supports adding lyrics and translations by users.
 - Simple UI.
 - No Ads. Never.
-
-## Technologies
-
-- Go
-- Colly
-- Mux, net/http
-- Bulma
 
 <p align="center">
 	<img src="example.png" alt="site-example">
