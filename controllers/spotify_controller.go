@@ -30,11 +30,13 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+
 		// Else,
 		// Redirect to welcome page.
 		// To do not show spotify's callback query.
 		// For just cosmetic.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	} else if accessTokenCookie == nil && refreshTokenCookie != nil {
 		// That means we have refresh token,
 		// but our access token has expired.
@@ -53,16 +55,19 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+
 		// Else,
 		// Redirect to welcome page.
 		// We couldn't get access token.
 		// TODO show an error message on welcome page.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	} else {
 		// Cookie is exist.
 		// Set it to the spotify object.
 		tokenResponse := &spotify.RefreshAndAccessTokens.Response
 		tokenResponse.AccessToken = accessTokenCookie.Value
+
 		// Set refresh token if it is not empty.
 		// We do not need to refresh token to showing song.
 		// So,
@@ -83,6 +88,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 			"",
 			"Open your spotify account and play a song. 🎶 🎉",
 		}
+
 		helpers.ErrorPage(errorMessages, w)
 		return
 	}
@@ -112,6 +118,7 @@ func updateTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		return err
 	}
+
 	// Everthinng is okay,
 	// Set access token to cookies.
 	// Also, it will update access token if response has a new access token.
@@ -148,6 +155,7 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 			"There is no state cookie.",
 			"Please do not remove your state cookie.",
 		}
+
 		helpers.ErrorPage(errorMessages, w)
 		return err
 	}
@@ -160,6 +168,7 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 			"Your state cookie and the response are not same.",
 			"You might be under attack.",
 		}
+
 		helpers.ErrorPage(errorMessages, w)
 		return err
 	}
@@ -176,11 +185,12 @@ func takeTokens(spotify *models.Spotify, w http.ResponseWriter, r *http.Request)
 			"There is some issues while taking response from Spotify.",
 			"Please try later.",
 		}
+
 		helpers.ErrorPage(errorMessages, w)
 	}
+
 	// If everything is okay,
 	// Then set the tokens to cookie for later usage..
 	helpers.SetTokenCookies(spotify.RefreshAndAccessTokens, w)
 	return nil
-
 }
