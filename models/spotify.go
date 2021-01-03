@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -217,6 +218,38 @@ func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, alb
 	albumImage = albumImages[len(albumImages)-2].URL
 
 	return artistName, songName, albumImage, nil
+}
+
+// UserMe returns current user's user-uri.
+func (s *Spotify) UserMe() string {
+	req, _ := http.NewRequest("GET", "https://api.spotify.com/v1/me", nil)
+	req.Header.Set("Authorization", "Bearer "+s.RefreshAndAccessTokens.Response.AccessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return ""
+	}
+
+	spotifyUserMe := make(map[string]interface{})
+	err = json.NewDecoder(resp.Body).Decode(&spotifyUserMe)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	userMe, ok := spotifyUserMe["uri"].(string)
+	if !ok {
+		return ""
+	}
+
+	return userMe
 }
 
 // Private Methods

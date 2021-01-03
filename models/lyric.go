@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -79,6 +80,13 @@ func (l *Lyric) GetLyricByCheckingDatabase(artistName string, songName string) {
 
 	if !l.IsAvaible {
 		l.GetLyric(artistName, songName)
+		if !l.IsAvaible {
+			log.Printf("[NOT FOUND] \"%v by %v\"", l.Source, songName, artistName)
+		} else {
+			log.Printf("[%s] [FOUND] \"%v by %v\"", l.Source, songName, artistName)
+		}
+	} else {
+		log.Printf("[%s] [FOUND] \"%v by %v\"", "Database", songName, artistName)
 	}
 }
 

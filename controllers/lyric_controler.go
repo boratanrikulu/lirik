@@ -36,12 +36,6 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	if !l.IsAvaible {
-		log.Printf("[NOT FOUND] \"%v by %v\"", songName, artistName)
-	} else {
-		log.Printf("[FOUND] \"%v by %v\"", songName, artistName)
-	}
-
 	files := helpers.GetTemplateFiles("./views/songs.html")
 	tmpl := template.Must(template.ParseFiles(files...))
 	_ = tmpl.Execute(w, pageData)

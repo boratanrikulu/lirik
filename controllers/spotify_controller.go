@@ -80,6 +80,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Gets user's current song.
+	log.Printf("[USER] %s\n", spotify.UserMe())
 	artistName, songName, albumImage, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
 		errorMessages := []string{
