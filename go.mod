@@ -1,4 +1,4 @@
-module github.com/boratanrikulu/s-lyrics
+module github.com/boratanrikulu/lirik.app
 
 go 1.14
 

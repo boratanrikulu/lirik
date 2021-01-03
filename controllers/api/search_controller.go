@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
-	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/lirik.app/controllers/helpers"
+	"github.com/boratanrikulu/lirik.app/models"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {

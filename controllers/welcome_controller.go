@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
-	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/lirik.app/controllers/helpers"
+	"github.com/boratanrikulu/lirik.app/models"
 )
 
 // Page Datas

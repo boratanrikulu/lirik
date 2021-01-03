@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 
-	"github.com/boratanrikulu/s-lyrics/controllers"
-	"github.com/boratanrikulu/s-lyrics/controllers/api"
+	"github.com/boratanrikulu/lirik.app/controllers"
+	"github.com/boratanrikulu/lirik.app/controllers/api"
 )
 
 func main() {

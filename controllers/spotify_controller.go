@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
-	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/lirik.app/controllers/helpers"
+	"github.com/boratanrikulu/lirik.app/models"
 )
 
 // Public Methods

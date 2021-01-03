@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/boratanrikulu/s-lyrics/controllers/helpers"
+	"github.com/boratanrikulu/lirik.app/controllers/helpers"
 )
 
 // Public Methods

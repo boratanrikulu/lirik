@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/boratanrikulu/s-lyrics/models"
+	"github.com/boratanrikulu/lirik.app/models"
 )
 
 func SetTokenCookies(r models.RefreshAndAccessTokens, w http.ResponseWriter) {
