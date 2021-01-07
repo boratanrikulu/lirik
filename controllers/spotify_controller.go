@@ -35,7 +35,9 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		// For just cosmetic.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
-	} else if accessTokenCookie == nil && refreshTokenCookie != nil {
+	}
+
+	if accessTokenCookie == nil && refreshTokenCookie != nil {
 		// That means we have refresh token,
 		// but our access token has expired.
 		// We need to send a request to spotify
@@ -60,21 +62,21 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 		// TODO show an error message on welcome page.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
-	} else {
-		// Cookie is exist.
-		// Set it to the spotify object.
-		tokenResponse := &spotify.RefreshAndAccessTokens.Response
-		tokenResponse.AccessToken = accessTokenCookie.Value
+	}
 
-		// Set refresh token if it is not empty.
-		// We do not need to refresh token to showing song.
-		// So,
-		// If there is only access token and not have refresh token,
-		// it is not a problem.
-		// That means user will be login for access token's expire time.
-		if refreshTokenCookie != nil {
-			tokenResponse.RefreshToken = refreshTokenCookie.Value
-		}
+	// Cookie is exist.
+	// Set it to the spotify object.
+	tokenResponse := &spotify.RefreshAndAccessTokens.Response
+	tokenResponse.AccessToken = accessTokenCookie.Value
+
+	// Set refresh token if it is not empty.
+	// We do not need to refresh token to showing song.
+	// So,
+	// If there is only access token and not have refresh token,
+	// it is not a problem.
+	// That means user will be login for access token's expire time.
+	if refreshTokenCookie != nil {
+		tokenResponse.RefreshToken = refreshTokenCookie.Value
 	}
 
 	// Gets user's current song.
