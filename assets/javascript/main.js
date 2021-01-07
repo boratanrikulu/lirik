@@ -1,22 +1,27 @@
-function openTab(evt, tabName) {
-  var i, x, tablinks;
-  x = document.getElementsByClassName("card-content");
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";
+function openTab(event, tabName) {
+  var cardContentElems = document.getElementsByClassName("card-content");
+  var tabLinkElems = document.getElementsByClassName("tab");
+  var currentContentEl = document.getElementById(tabName);
+
+  for (cardContentEl of cardContentElems) {
+    cardContentEl.style.display = "none";
   }
-  tablinks = document.getElementsByClassName("tab");
-  for (i = 0; i < x.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" is-active", "");
+
+  for (tabLinkEl of tabLinkElems) {
+    tabLinkEl.classList.remove("is-active");
   }
-  document.getElementById(tabName).style.display = "block";
-  evt.currentTarget.className += " is-active";
+
+  currentContentEl.style.display = "block";
+  event.currentTarget.classList.add("is-active");
 }
 
-async function getCurrentSongID(token = "") {
+async function getCurrentSongID() {
+  var accessToken = getCookie("AccessToken");
+  var token = "Bearer " + accessToken;
+
   const response = await fetch(
     "https://api.spotify.com/v1/me/player/currently-playing",
     {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -39,24 +44,26 @@ function getCookie(name) {
 }
 
 async function getCurrentPage() {
-	fetch('/spotify').then(function (response) {
-		return response.text();
-	}).then(function (html) {
-		document.querySelector("html").innerHTML = html; 
-	}).catch(function (err) {
-		console.warn('Something went wrong.', err);
-	});
+  fetch("/spotify")
+    .then(function (response) {
+      return response.text();
+    })
+    .then(function (html) {
+      document.querySelector("html").innerHTML = html;
+    })
+    .catch(function (err) {
+      console.warn("Something went wrong.", err);
+    });
 }
 
 function checkChanges() {
   if (document.hidden) return;
 
-  var accessToken = getCookie("AccessToken");
-  var cID = getCookie("CurrentSongID");
-  getCurrentSongID("Bearer " + accessToken)
+  getCurrentSongID()
     .then((data) => {
+      var cID = getCookie("CurrentSongID");
       if (cID != data.item.id) {
-		getCurrentPage();
+        getCurrentPage();
       }
     })
     .catch((err) => {
