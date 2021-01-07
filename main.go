@@ -30,9 +30,6 @@ func main() {
 	a := r.PathPrefix("/api").Subrouter()
 	a.HandleFunc("/search", api.Search).Methods("POST")
 
-	ctx := context.Background()
-	go syncDatabase(ctx)
-
 	serve(r, "3000")
 }
 
@@ -47,8 +44,12 @@ func serve(r *mux.Router, defaultPort string) {
 }
 
 func cloneOrPullDatabase(databaseURL string) {
-	var errOutput bytes.Buffer
+	if databaseURL == "" {
+		log.Println("DatabaseURL ise not set. Caching will not be working.")
+		return
+	}
 
+	var errOutput bytes.Buffer
 	if folderExists("./database/.git") {
 		cmd := exec.Command("git", "pull", "origin", "master")
 		cmd.Dir = "./database"
@@ -72,7 +73,8 @@ func cloneOrPullDatabase(databaseURL string) {
 		return
 	}
 
-	return
+	ctx := context.Background()
+	go syncDatabase(ctx)
 }
 
 func syncDatabase(ctx context.Context) {
@@ -80,7 +82,7 @@ func syncDatabase(ctx context.Context) {
 		time.Sleep(5 * time.Minute)
 		if !folderExists("./database/.git") {
 			log.Println("There is now .git folder")
-			continue
+			break
 		}
 
 		for _, command := range [][]string{
