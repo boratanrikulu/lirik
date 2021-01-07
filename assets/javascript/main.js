@@ -28,20 +28,14 @@ async function getCurrentSongID(token = "") {
   return response.json();
 }
 
-function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(";");
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
+function getCookie(name) {
+  var parsedCookie = document.cookie.split(";");
+  var currentCookie = parsedCookie.find((cookie) =>
+    cookie.includes(name + "=")
+  );
+  var value = currentCookie.split(name + "=");
+
+  return value[1];
 }
 
 function checkChanges() {
