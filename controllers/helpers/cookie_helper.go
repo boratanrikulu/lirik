@@ -16,7 +16,7 @@ func SetTokenCookies(r models.RefreshAndAccessTokens, w http.ResponseWriter) {
 			// MaxAge of access token is 1 hour.
 			MaxAge:   r.Response.ExpiresIn,
 			SameSite: http.SameSiteLaxMode,
-			HttpOnly: true,
+			HttpOnly: false,
 		},
 		{
 			Name:  "RefreshToken",
