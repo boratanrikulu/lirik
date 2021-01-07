@@ -103,6 +103,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{
 		Name:     "CurrentSongID",
 		Value:    id,
+		MaxAge:   3600,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: false,
 	}
