@@ -38,39 +38,38 @@ function getCookie(name) {
   return value[1];
 }
 
-function checkChanges() {
-  setTimeout(checkChanges, 2500);
-
-  if (!document.hidden) {
-    accessToken = getCookie("AccessToken");
-    cID = getCookie("CurrentSongID");
-    getCurrentSongID("Bearer " + accessToken)
-      .then((data) => {
-        console.log("Current Song ID: ", data.item.id);
-
-        if (cID != data.item.id) {
-          console.log("Song was changed.");
-
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-              document.getElementsByTagName(
-                "html"
-              )[0].innerHTML = this.responseText;
-            }
-          };
-
-          xhttp.open("GET", "/spotify", true);
-          xhttp.send();
-        }
-      })
-      .catch((err) => {
-        console.log("No song.");
-      });
-  }
+async function getCurrentPage() {
+	fetch('/spotify').then(function (response) {
+		return response.text();
+	}).then(function (html) {
+		document.querySelector("html").innerHTML = html; 
+	}).catch(function (err) {
+		console.warn('Something went wrong.', err);
+	});
 }
 
-accessToken = getCookie("AccessToken");
+function checkChanges() {
+  if (document.hidden) return;
+
+  var accessToken = getCookie("AccessToken");
+  var cID = getCookie("CurrentSongID");
+  getCurrentSongID("Bearer " + accessToken)
+    .then((data) => {
+      if (cID != data.item.id) {
+		getCurrentPage();
+      }
+    })
+    .catch((err) => {
+      console.log("No song.");
+    });
+}
+
+function checkChangesTimer() {
+  checkChanges();
+  setTimeout(checkChangesTimer, 2500);
+}
+
+var accessToken = getCookie("AccessToken");
 if (accessToken != "") {
-  window.onload = checkChanges();
+  checkChangesTimer();
 }
