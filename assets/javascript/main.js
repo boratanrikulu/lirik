@@ -12,11 +12,13 @@ function openTab(evt, tabName) {
   evt.currentTarget.className += " is-active";
 }
 
-async function getCurrentSongID(token = "") {
+async function getCurrentSongID() {
+  var accessToken = getCookie("AccessToken");
+  var token = "Bearer " + accessToken;
+
   const response = await fetch(
     "https://api.spotify.com/v1/me/player/currently-playing",
     {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -39,24 +41,26 @@ function getCookie(name) {
 }
 
 async function getCurrentPage() {
-	fetch('/spotify').then(function (response) {
-		return response.text();
-	}).then(function (html) {
-		document.querySelector("html").innerHTML = html; 
-	}).catch(function (err) {
-		console.warn('Something went wrong.', err);
-	});
+  fetch("/spotify")
+    .then(function (response) {
+      return response.text();
+    })
+    .then(function (html) {
+      document.querySelector("html").innerHTML = html;
+    })
+    .catch(function (err) {
+      console.warn("Something went wrong.", err);
+    });
 }
 
 function checkChanges() {
   if (document.hidden) return;
 
-  var accessToken = getCookie("AccessToken");
-  var cID = getCookie("CurrentSongID");
-  getCurrentSongID("Bearer " + accessToken)
+  getCurrentSongID()
     .then((data) => {
+      var cID = getCookie("CurrentSongID");
       if (cID != data.item.id) {
-		getCurrentPage();
+        getCurrentPage();
       }
     })
     .catch((err) => {
