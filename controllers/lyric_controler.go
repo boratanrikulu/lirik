@@ -24,6 +24,11 @@ func LyricGet(w http.ResponseWriter, r *http.Request) {
 
 	l := new(models.Lyric)
 	l.GetLyricByCheckingDatabase(artistName, songName)
+	count := 1
+	for count < 3 && !l.IsAvaible {
+		l.GetLyricByCheckingDatabase(artistName, songName)
+		count++
+	}
 
 	pageData := LyricPageData{
 		Artist: models.Artist{

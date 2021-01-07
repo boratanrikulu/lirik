@@ -81,16 +81,64 @@ func (l *Lyric) GetLyricByCheckingDatabase(artistName string, songName string) {
 	if !l.IsAvaible {
 		l.GetLyric(artistName, songName)
 		if !l.IsAvaible {
-			log.Printf("[NOT FOUND] \"%v by %v\"", l.Source, songName, artistName)
-		} else {
-			log.Printf("[%s] [FOUND] \"%v by %v\"", l.Source, songName, artistName)
+			log.Printf("[NOT FOUND] \"%s by %s\"", songName, artistName)
+			return
 		}
-	} else {
-		log.Printf("[%s] [FOUND] \"%v by %v\"", "Database", songName, artistName)
+
+		fileName := getFileName(artistName, songName)
+		go saveToFile(fileName, l)
+
+		log.Printf("[%s] [FOUND] \"%s by %s\"", l.Source, songName, artistName)
+		return
 	}
+
+	log.Printf("[%s] [FOUND] \"%s by %s\"", "Database", songName, artistName)
 }
 
 // Private Methods
+
+func saveToFile(fileName string, l *Lyric) {
+	f, err := os.Create(fileName)
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+
+	b, _ := json.Marshal(l)
+	_, err = f.Write(b)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Printf("[CREATED] %s\n", fileName)
+
+	if len(l.Translates) != 0 {
+		go saveTranslationsToFiles(fileName, l)
+	}
+}
+
+func saveTranslationsToFiles(fileName string, l *Lyric) {
+	for _, translate := range l.Translates {
+		fName := fileName + "_" + translate.Language
+		if fileExists(fName) {
+			continue
+		}
+
+		f, err := os.Create(fName)
+		if err != nil {
+			log.Println(err)
+		}
+		defer f.Close()
+
+		b, _ := json.Marshal(translate)
+		_, err = f.Write(b)
+		if err != nil {
+			log.Println(err)
+		}
+
+		log.Printf("[CREATED %s translation] %s\n", translate.Language, fName)
+	}
+}
 
 func songRegex(song string) string {
 	regexList := []string{
@@ -334,4 +382,20 @@ func contains(array []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func folderExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
 }

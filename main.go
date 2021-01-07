@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	"context"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -18,10 +19,7 @@ import (
 func main() {
 	godotenv.Load()
 
-	err := cloneOrPullDatabase(os.Getenv("DATABASE_ADDRESS"))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	go cloneOrPullDatabase(os.Getenv("DATABASE_ADDRESS"))
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
@@ -31,7 +29,9 @@ func main() {
 
 	a := r.PathPrefix("/api").Subrouter()
 	a.HandleFunc("/search", api.Search).Methods("POST")
-	// api.HandleFunc("/write", api.WriteLyrics).Methods("POST")
+
+	ctx := context.Background()
+	go syncDatabase(ctx)
 
 	serve(r, "3000")
 }
@@ -46,7 +46,7 @@ func serve(r *mux.Router, defaultPort string) {
 	log.Fatalln(http.ListenAndServe(":"+port, r))
 }
 
-func cloneOrPullDatabase(databaseURL string) error {
+func cloneOrPullDatabase(databaseURL string) {
 	var errOutput bytes.Buffer
 
 	if folderExists("./database/.git") {
@@ -56,10 +56,11 @@ func cloneOrPullDatabase(databaseURL string) error {
 
 		err := cmd.Run()
 		if err != nil {
-			return fmt.Errorf("%s", errOutput)
+			log.Println(err)
+			return
 		}
 
-		return nil
+		return
 	}
 
 	cmd := exec.Command("git", "clone", databaseURL, "./database")
@@ -67,10 +68,42 @@ func cloneOrPullDatabase(databaseURL string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("%s", errOutput)
+		log.Println(err)
+		return
 	}
 
-	return nil
+	return
+}
+
+func syncDatabase(ctx context.Context) {
+	for {
+		time.Sleep(5 * time.Minute)
+		if !folderExists("./database/.git") {
+			log.Println("There is now .git folder")
+			continue
+		}
+
+		for _, command := range [][]string{
+			[]string{"git", "config", "user.email", "bora@heroku.com"},
+			[]string{"git", "config", "user.name", "HEROKU"},
+			[]string{"git", "pull", "origin", "master"},
+			[]string{"git", "add", "."},
+			[]string{"git", "commit", "-m", "Add new lyrics"},
+			[]string{"git", "push", "origin", "master"},
+		} {
+			errOutput := bytes.Buffer{}
+			cmd := exec.Command(command[0], command[1:]...)
+			cmd.Dir = "./database"
+			cmd.Stderr = &errOutput
+			err := cmd.Run()
+			if msg := errOutput.String(); err != nil && msg != "" {
+				log.Println("[Database]", msg)
+				continue
+			}
+		}
+
+		log.Println("[Database] is synced.")
+	}
 }
 
 func folderExists(filename string) bool {
