@@ -81,10 +81,11 @@ func syncDatabase(ctx context.Context) {
 	for {
 		time.Sleep(5 * time.Minute)
 		if !folderExists("./database/.git") {
-			log.Println("There is now .git folder")
+			log.Println("There is not .git folder")
 			break
 		}
 
+		flag := true
 		for _, command := range [][]string{
 			[]string{"git", "config", "user.email", "bora@heroku.com"},
 			[]string{"git", "config", "user.name", "HEROKU"},
@@ -100,11 +101,14 @@ func syncDatabase(ctx context.Context) {
 			err := cmd.Run()
 			if msg := errOutput.String(); err != nil && msg != "" {
 				log.Println("[Database]", msg)
-				continue
+				flag = false
+				break
 			}
 		}
 
-		log.Println("[Database] is synced.")
+		if flag {
+			log.Println("[Database] is synced.")
+		}
 	}
 }
 
