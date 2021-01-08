@@ -35,11 +35,15 @@ async function getCurrentSongID() {
 
 function getCookie(name) {
   var parsedCookie = document.cookie.split(";");
+
   var currentCookie = parsedCookie.find((cookie) =>
     cookie.includes(name + "=")
   );
-  var value = currentCookie.split(name + "=");
+  if (currentCookie == null) {
+    return ""
+  }
 
+  var value = currentCookie.split(name + "=");
   return value[1];
 }
 
