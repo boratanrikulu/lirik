@@ -40,7 +40,7 @@ func UpdateTokenCookies(u models.UpdateAccessToken, w http.ResponseWriter) {
 			// MaxAge of access token is 1 hour.
 			MaxAge:   u.Response.ExpiresIn,
 			SameSite: http.SameSiteLaxMode,
-			HttpOnly: true,
+			HttpOnly: false,
 		},
 	}
 
