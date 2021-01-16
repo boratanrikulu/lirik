@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/boratanrikulu/lirik.app/controllers/helpers"
 	"github.com/boratanrikulu/lirik.app/models"
@@ -81,7 +80,7 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 
 	// Gets user's current song.
 	log.Printf("[USER] %s\n", spotify.UserMe())
-	artistName, songName, albumImage, id, err := spotify.GetCurrentlyPlaying()
+	artistName, songName, albumImage, err := spotify.GetCurrentlyPlaying()
 	if err != nil {
 		errorMessages := []string{
 			"There is no song playing.",
@@ -90,26 +89,10 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 			"Open your spotify account and play a song. 🎶 🎉",
 		}
 
-		// Clear current song id token.
-		cookie, err := r.Cookie("CurrentSongID")
-		if err != nil && cookie != nil {
-			cookie.Value = ""
-			cookie.Expires = time.Unix(0, 0)
-			http.SetCookie(w, cookie)
-		}
-
 		helpers.ErrorPage(errorMessages, w)
 		return
 	}
 
-	cookie := http.Cookie{
-		Name:     "CurrentSongID",
-		Value:    id,
-		MaxAge:   3600,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: false,
-	}
-	http.SetCookie(w, &cookie)
 	showLyric(artistName, songName, albumImage, w, r)
 }
 

@@ -62,11 +62,12 @@ async function getCurrentPage() {
 
 function checkChanges() {
   if (document.hidden) return;
+  if (getCookie("AccessToken") == "" && getCookie("RefreshToken") != "") { location.reload(); }
 
   getCurrentSongID()
     .then((data) => {
-      var cID = getCookie("CurrentSongID");
-      if (cID != data.item.id) {
+      if (currentSongID != data.item.id) {
+        currentSongID = data.item.id;
         getCurrentPage();
       }
     })
@@ -80,7 +81,12 @@ function checkChangesTimer() {
   setTimeout(checkChangesTimer, 2500);
 }
 
-var accessToken = getCookie("AccessToken");
-if (accessToken != "") {
+var currentSongID = ""
+if (getCookie("AccessToken") != "" ) {
+  getCurrentSongID()
+    .then((data) => {
+      currentSongID = data.item.id;
+    })
+
   checkChangesTimer();
 }
