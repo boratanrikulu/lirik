@@ -13,6 +13,7 @@ func GetTemplateFiles(controller_file string) []string {
 		"./views/partials/footer_partial.html",
 		"./views/layouts/user_layout.html",
 		"./views/partials/user/header_partial.html",
+		"./views/partials/loading.html",
 	}
 
 	return files
