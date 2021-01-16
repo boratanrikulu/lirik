@@ -40,7 +40,7 @@ function getCookie(name) {
     cookie.includes(name + "=")
   );
   if (currentCookie == null) {
-    return ""
+    return "";
   }
 
   var value = currentCookie.split(name + "=");
@@ -48,21 +48,33 @@ function getCookie(name) {
 }
 
 async function getCurrentPage() {
+  const loadingEl = document.querySelector(".lirik-loading");
+
+  loadingEl.style.visibility = "visible";
+
   fetch("/spotify")
     .then(function (response) {
       return response.text();
     })
     .then(function (html) {
+      loadingEl.style.display = "hidden";
       document.querySelector("html").innerHTML = html;
     })
     .catch(function (err) {
+      loadingEl.style.display = "hidden";
       console.warn("Something went wrong.", err);
     });
 }
 
 function checkChanges() {
   if (document.hidden) return;
-  if (getCookie("AccessToken") == "" && getCookie("RefreshToken") != "") { location.reload(); }
+
+  var accessToken = getCookie("AccessToken");
+  var refreshToken = getCookie("RefreshToken");
+
+  if (accessToken == "" && refreshToken != "") {
+    location.reload();
+  }
 
   getCurrentSongID()
     .then((data) => {
@@ -81,12 +93,11 @@ function checkChangesTimer() {
   setTimeout(checkChangesTimer, 2500);
 }
 
-var currentSongID = ""
-if (getCookie("AccessToken") != "" ) {
-  getCurrentSongID()
-    .then((data) => {
-      currentSongID = data.item.id;
-    })
+var currentSongID = "";
+if (getCookie("AccessToken") != "") {
+  getCurrentSongID().then((data) => {
+    currentSongID = data.item.id;
+  });
 
   checkChangesTimer();
 }
