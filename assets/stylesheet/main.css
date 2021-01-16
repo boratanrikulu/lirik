@@ -72,6 +72,11 @@ p:empty:before {
 	color: grey;
 }
 
+.star-me {
+   margin: 20px;
+   float: right;
+}
+
 @media screen and (max-width: 550px) {
 	.album-photo img {
 		height: 120px;
