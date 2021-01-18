@@ -101,3 +101,15 @@ if (getCookie("AccessToken") != "") {
 
   checkChangesTimer();
 }
+
+//check if OS color is dark, if true change logo to white
+const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+window.addEventListener("load", event => {
+  var image = document.querySelector('img');
+  var isLoaded = image.complete && image.naturalHeight !== 0;
+  if (isLoaded){
+    if(darkModeMediaQuery.matches){
+      document.getElementById("logo").src = "./assets/logo_white.svg";
+    }
+  }
+});

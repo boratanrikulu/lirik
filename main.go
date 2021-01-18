@@ -45,7 +45,7 @@ func serve(r *mux.Router, defaultPort string) {
 
 func cloneOrPullDatabase(databaseURL string) {
 	if databaseURL == "" {
-		log.Println("DatabaseURL ise not set. Caching will not be working.")
+		log.Println("DatabaseURL is not set. Caching will not be working.")
 		return
 	}
 

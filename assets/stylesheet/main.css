@@ -232,3 +232,49 @@ p:empty:before {
     opacity: 0;
   }
 }
+@media (prefers-color-scheme: dark) {
+  /* Overrides for Dark Mode. */
+  body {
+      color: white;
+      background: #121212;
+  }
+  .subtitle{
+    color:#C0C4C8;
+  }
+  .hero .hero-body,
+  .buttons .is-primary{
+    background-color:#228840;
+  }
+  .subtitle strong{
+    color:#F0F4F8;
+  }
+  .button.is-primary.is-light{
+    background-color: #1db954;
+  }
+  .buttons strong{
+    color: #F0F4F8;
+  }
+  .footer{
+    background-color: #2F3135;
+    color: #e7e7e7;
+  }
+  .footer .content a{
+    color: #1fab4f;
+  }
+  .message.is-danger .message-header{
+    background-color: #bf3753
+  }
+  .message.is-danger .message-body{
+    background-color: #f14668;
+    color: #f0f0f0;
+  }
+  .card{
+    background-color: #2F3135;
+  }
+  .card p{
+    color: #f0f0f0;
+  }
+  .card a{
+    color: #1fab4f;
+  }
+}
