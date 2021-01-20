@@ -89,7 +89,7 @@ func syncDatabase(ctx context.Context) {
 		for _, command := range [][]string{
 			[]string{"git", "config", "user.email", "bora@heroku.com"},
 			[]string{"git", "config", "user.name", "HEROKU"},
-			[]string{"git", "pull", "origin", "master"},
+			[]string{"git", "pull", "-X", "theirs", "origin", "master"},
 			[]string{"git", "add", "."},
 			[]string{"git", "commit", "-m", "Add new lyrics"},
 			[]string{"git", "push", "origin", "master"},
