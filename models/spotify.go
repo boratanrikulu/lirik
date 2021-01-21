@@ -215,7 +215,9 @@ func (s *Spotify) GetCurrentlyPlaying() (artistName string, songName string, alb
 	artistName = s.CurrentlyPlaying.Item.Artists[0].Name
 	songName = s.CurrentlyPlaying.Item.Name
 	albumImages := s.CurrentlyPlaying.Item.Album.Images
-	albumImage = albumImages[len(albumImages)-2].URL
+	if len(albumImages) >= 2 {
+		albumImage = albumImages[len(albumImages)-2].URL
+	}
 
 	return artistName, songName, albumImage, nil
 }

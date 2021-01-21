@@ -3,9 +3,11 @@
 <div class="song">
 	<section class="hero is-primary">
 		<div class="hero-body song-body">
-			<figure class="image album-photo is-pulled-right">
-				<img src="{{.Song.AlbumImage}}">
-			</figure>
+			{{ if .Song.AlbumImage }}
+				<figure class="image album-photo is-pulled-right">
+					<img src="{{.Song.AlbumImage}}">
+				</figure>
+			{{ end }}
 			<div class="song-info">
 				<h1 class="title song-title">
 					{{.Song.Name}}
