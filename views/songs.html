@@ -36,8 +36,7 @@
 					<p>{{ . }}</p>
 				{{ end }}
 				{{ if .Song.Lyric.Source }}
-					<hr>
-					<p>These lyrics were taken from <a href="https://{{ .Song.Lyric.Source }}">{{ .Song.Lyric.Source }}</a></p>
+					<p  class="song-subinfo">These lyrics were taken from <a href="https://{{ .Song.Lyric.Source }}">{{ .Song.Lyric.Source }}</a></p>
 				{{ end }}
 			{{ else }}
 				<article class="message is-danger">
@@ -57,7 +56,7 @@
 				{{ range .Lines }}
 					<p>{{ . }}</p>
 				{{ end }}
-				<p class="translator">Translated by <a href="https://lyricstranslate.com{{ .Author.Href }}">{{ .Author.Name }}</a></p>
+				<p class="song-subinfo">Translated by <a href="https://lyricstranslate.com{{ .Author.Href }}">{{ .Author.Name }}</a></p>
 			</div>
 		{{ end }}
 	</div>
