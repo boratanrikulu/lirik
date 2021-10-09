@@ -1,3 +1,5 @@
+navigator.serviceWorker.getRegistrations().then( function(registrations) { for(let registration of registrations) { registration.unregister(); } }); 
+
 function openTab(event, tabName) {
   var cardContentElems = document.getElementsByClassName("card-content");
   var tabLinkElems = document.getElementsByClassName("tab");
