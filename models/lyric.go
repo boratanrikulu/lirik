@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/agnivade/levenshtein"
 	"github.com/gocolly/colly/v2"
 )
 
@@ -220,7 +221,7 @@ func getFromSecondSource(l *Lyric, artistName string, songName string) {
 			s = strings.ReplaceAll(s, "'", "’")
 			a = strings.ReplaceAll(a, "'", "’")
 
-			if resultSong == s && strings.Contains(resultArtist, a) {
+			if levenshtein.ComputeDistance(resultSong, s) <= 3 && strings.Contains(resultArtist, a) {
 				geniusURL = value.Result.URL
 				break
 			}
