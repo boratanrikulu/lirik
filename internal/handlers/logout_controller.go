@@ -1,12 +1,10 @@
-package controllers
+package handlers
 
 import (
 	"net/http"
 
-	"github.com/boratanrikulu/lirik.app/controllers/helpers"
+	"github.com/boratanrikulu/lirik.app/internal/handlers/helpers"
 )
-
-// Public Methods
 
 func LogoutGet(w http.ResponseWriter, r *http.Request) {
 	helpers.ClearCookies(w, r)

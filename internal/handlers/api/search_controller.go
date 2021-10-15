@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/boratanrikulu/lirik.app/controllers/helpers"
-	"github.com/boratanrikulu/lirik.app/models"
+	"github.com/boratanrikulu/lirik.app/internal/handlers/helpers"
+	"github.com/boratanrikulu/lirik.app/pkg/lyrics"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
@@ -29,10 +29,9 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	l := new(models.Lyric)
-	l.GetLyric(artistName, songName)
-
-	if !l.IsAvaible {
+	finder := lyrics.NewFinder()
+	found, l := finder.GetLyrics(artistName, songName)
+	if !found {
 		log.Printf("[API] [NOT FOUND] \"%v by %v\"", songName, artistName)
 		helpers.WriteErrorToRes(w, http.StatusOK, "We couldn't find any lyrics.")
 		return

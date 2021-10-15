@@ -1,49 +1,15 @@
-package main
+package workers
 
 import (
 	"bytes"
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"time"
-
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-
-	"github.com/boratanrikulu/lirik.app/controllers"
-	"github.com/boratanrikulu/lirik.app/controllers/api"
 )
 
-func main() {
-	godotenv.Load()
-
-	go cloneOrPullDatabase(os.Getenv("DATABASE_ADDRESS"))
-
-	r := mux.NewRouter()
-	r.HandleFunc("/", controllers.WelcomeGet).Methods("GET")
-	r.HandleFunc("/logout", controllers.LogoutGet).Methods("GET")
-	r.HandleFunc("/spotify", controllers.SpotifyGet).Methods("GET")
-	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./assets/"))))
-
-	a := r.PathPrefix("/api").Subrouter()
-	a.HandleFunc("/search", api.Search).Methods("POST")
-
-	serve(r, "3000")
-}
-
-func serve(r *mux.Router, defaultPort string) {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort // Default port if not specified
-	}
-
-	log.Println("Server started at :" + port + ".")
-	log.Fatalln(http.ListenAndServe(":"+port, r))
-}
-
-func cloneOrPullDatabase(databaseURL string) {
+func PrepareDatabase(databaseURL string) {
 	if databaseURL == "" {
 		log.Println("DatabaseURL ise not set. Caching will not be working.")
 		return

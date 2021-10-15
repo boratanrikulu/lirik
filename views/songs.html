@@ -4,9 +4,9 @@
 	<section class="hero is-primary">
 		<div class="hero-body song-body">
 			{{ if .Song.AlbumImage }}
-				<figure class="image album-photo is-pulled-right">
-					<img src="{{.Song.AlbumImage}}">
-				</figure>
+			<figure class="image album-photo is-pulled-right">
+				<img src="{{.Song.AlbumImage}}">
+			</figure>
 			{{ end }}
 			<div class="song-info">
 				<h1 class="title song-title">
@@ -20,48 +20,49 @@
 	</section>
 
 	<div class="card">
-		{{ if and .Song.Lyric.IsAvaible .Song.Lyric.Translates }}
-			<div class="tabs">
-				<ul>
-					<li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original ({{ .Song.Lyric.Language }})</a></li>
-					{{ range .Song.Lyric.Translates }}
-						<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
-					{{ end }}
-				</ul>
-			</div>
+		{{ if and .IsAvaible .Song.Lyrics.Translates }}
+		<div class="tabs">
+			<ul>
+				<li class="tab is-active" onclick="openTab(event, 'Original')"><a>Original
+						({{ .Song.Lyrics.Language }})</a></li>
+				{{ range .Song.Lyrics.Translates }}
+				<li class="tab" onclick="openTab(event, '{{ .Language }}')"><a>{{ .Language }}</a></li>
+				{{ end }}
+			</ul>
+		</div>
 		{{ end }}
 		<div id="Original" class="card-content">
-			{{ if .Song.Lyric.IsAvaible }}
-				{{ range .Song.Lyric.Lines }}
-					<p>{{ . }}</p>
-				{{ end }}
-				{{ if .Song.Lyric.Source }}
-					<p  class="song-subinfo">These lyrics were taken from <a href="https://{{ .Song.Lyric.Source }}">{{ .Song.Lyric.Source }}</a></p>
-				{{ end }}
+			{{ if .IsAvaible }}
+			{{ range .Song.Lyrics.Lines }}
+			<p>{{ . }}</p>
+			{{ end }}
+			{{ if .Song.Lyrics.Source }}
+			<p class="song-subinfo">These lyrics were taken from <a
+					href="https://{{ .Song.Lyrics.Source }}">{{ .Song.Lyrics.Source }}</a></p>
+			{{ end }}
 			{{ else }}
-				<article class="message is-danger">
-				  <div class="message-body">
-				    <p>There is no lyrics to show 😔</p>
-				    <p>We are sorry about that.</p>
-				    <p></p>
-				    <p>We are working on finding more lyrics.</p>
-				    <p>Try another song 🙏</p>
-				  </div>
-				</article>
+			<article class="message is-danger">
+				<div class="message-body">
+					<p>There is no lyrics to show 😔</p>
+					<p>We are sorry about that.</p>
+					<p></p>
+					<p>We are working on finding more lyrics.</p>
+					<p>Try another song 🙏</p>
+				</div>
+			</article>
 			{{ end }}
 		</div>
-		{{ range .Song.Lyric.Translates}}
-			<div id="{{.Language}}" class="card-content" style="display: none;">
-				<p class="subtitle">{{ .Title }}</p>
-				{{ range .Lines }}
-					<p>{{ . }}</p>
-				{{ end }}
-				<p class="song-subinfo">Translated by <a href="https://lyricstranslate.com{{ .Author.Href }}">{{ .Author.Name }}</a></p>
-			</div>
+		{{ range .Song.Lyrics.Translates}}
+		<div id="{{.Language}}" class="card-content" style="display: none;">
+			<p class="subtitle">{{ .Title }}</p>
+			{{ range .Lines }}
+			<p>{{ . }}</p>
+			{{ end }}
+			<p class="song-subinfo">Translated by <a
+					href="https://lyricstranslate.com{{ .Author.Href }}">{{ .Author.Name }}</a></p>
+		</div>
 		{{ end }}
 	</div>
-</div>
 
 {{ end }}
 {{ template "user" . }}
-			
