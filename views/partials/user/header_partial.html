@@ -11,13 +11,26 @@
 			<p class="subtitle">
 				shows lyrics for <strong>currently playing song</strong> in your Spotify account.
 			</p>
-			<div class="buttons">
-				<a href="/spotify" class="button is-primary">
-					<strong>Refresh</strong>
-				</a>
-				<a href="/logout" class="button is-light">
-					Log out
-				</a>
+			<div class="columns user-buttons">
+				<div class="column">
+					<div class="buttons">
+						<a href="/spotify" class="button is-primary is-spotify">
+							Detect Current
+						</a>
+						<a href="/logout" class="button is-light">
+							Log out
+						</a>
+					</div>
+				</div>
+				<div class="column">
+					<form action="/search">
+						<div class="user-search">
+							<div class="control">
+								<input class="input" name="q" type="text" placeholder="Search" autocomplete="off">
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 		</header>
 		<hr>

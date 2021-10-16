@@ -22,6 +22,7 @@ func main() {
 	r.HandleFunc("/", handlers.WelcomeGet).Methods("GET")
 	r.HandleFunc("/logout", handlers.LogoutGet).Methods("GET")
 	r.HandleFunc("/spotify", handlers.SpotifyGet).Methods("GET")
+	r.HandleFunc("/search", handlers.SpotifyGet).Methods("GET")
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./assets/"))))
 	a := r.PathPrefix("/api").Subrouter()
 	a.HandleFunc("/search", api.Search).Methods("POST")

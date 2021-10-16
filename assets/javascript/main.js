@@ -96,7 +96,7 @@ function checkChangesTimer() {
 }
 
 var currentSongID = "";
-if (getCookie("AccessToken") != "") {
+if (getCookie("AccessToken") != "" && window.location.pathname == "/spotify") {
   getCurrentSongID().then((data) => {
     currentSongID = data.item.id;
   });

@@ -62,7 +62,12 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("[USER] %s\n", sAuthed.UserMe)
-	artistName, songName, albumImage, err := sAuthed.GetCurrentlyPlaying()
+	var artistName, songName, albumImage string
+	if r.URL.Path == "/search" {
+		artistName, songName, albumImage, err = sAuthed.Search(r.URL.Query().Get("q"))
+	} else {
+		artistName, songName, albumImage, err = sAuthed.GetCurrentlyPlaying()
+	}
 	if err != nil {
 		errorMessages := []string{
 			"There is no song playing.",
