@@ -121,7 +121,7 @@ func showLyric(song spotify.Song, w http.ResponseWriter, r *http.Request) {
 	wg.Wait()
 	genre := m.Genre
 	if m.Style != "" {
-		genre += " [" + m.Style + "]"
+		genre = fmt.Sprintf("%s (%s)", genre, m.Style)
 	}
 
 	pageData := lyricsPageData{
