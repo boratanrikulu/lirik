@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"net/url"
+	"sync"
 
 	"github.com/boratanrikulu/lirik.app/internal/handlers/helpers"
+	"github.com/boratanrikulu/lirik.app/internal/models"
+	"github.com/boratanrikulu/lirik.app/pkg/lyrics"
+	"github.com/boratanrikulu/lirik.app/pkg/meta"
 	"github.com/boratanrikulu/lirik.app/pkg/spotify"
 )
 
@@ -19,6 +24,11 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	var err error
 	if accessTokenCookie == nil && refreshTokenCookie == nil {
 		state := r.URL.Query().Get("state")
+		code := r.URL.Query().Get("code")
+		sAuthed, err = spotify.S.Login(state, code)
+		if err != nil {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
 		if stateCookie == nil || stateCookie.Value != state {
 			log.Print("[ERROR] User's state and request state are not same.")
 			errorMessages := []string{
@@ -28,11 +38,6 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 
 			helpers.ErrorPage(errorMessages, w)
 			return
-		}
-		code := r.URL.Query().Get("code")
-		sAuthed, err = spotify.S.Login(state, code)
-		if err != nil {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 
 		helpers.UpdateTokenCookies(sAuthed, w)
@@ -62,32 +67,80 @@ func SpotifyGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("[USER] %s\n", sAuthed.UserMe)
-	var artistName, songName, albumImage string
+	var song spotify.Song
 	if r.URL.Path == "/search" {
-		artistName, songName, albumImage, err = sAuthed.Search(r.URL.Query().Get("q"))
-	} else {
-		artistName, songName, albumImage, err = sAuthed.GetCurrentlyPlaying()
-	}
-	if err != nil {
-		errorMessages := []string{
-			"There is no song playing.",
-			"You need to play a song! 😅",
-			"",
-			"Open your spotify account and play a song. 🎶 🎉",
+		song, err = sAuthed.Search(r.URL.Query().Get("q"))
+		if err != nil {
+			errorMessages := []string{
+				"We can't find any related song for the query. 😔",
+				"We are sorry about that.",
+				"",
+				"Try another song! 🙏",
+			}
+
+			helpers.ErrorPage(errorMessages, w)
+			return
 		}
+	} else {
+		song, err = sAuthed.GetCurrentlyPlaying()
+		if err != nil {
+			errorMessages := []string{
+				"There is no song playing.",
+				"You need to play a song! 😅",
+				"",
+				"Open your spotify account and play a song. 🎶 🎉",
+			}
 
-		helpers.ErrorPage(errorMessages, w)
-		return
+			helpers.ErrorPage(errorMessages, w)
+			return
+		}
 	}
 
-	showLyric(artistName, songName, albumImage, w, r)
+	showLyric(song, w, r)
 }
 
-func showLyric(artistName string, songName string, albumImage string, w http.ResponseWriter, r *http.Request) {
-	q, _ := url.ParseQuery("")
-	q.Add("artistName", artistName)
-	q.Add("songName", songName)
-	q.Add("albumImage", albumImage)
-	r.URL.RawQuery = q.Encode()
-	LyricsGet(w, r)
+type lyricsPageData struct {
+	IsAvaible bool
+	Artist    models.Artist
+	Song      models.Song
+}
+
+func showLyric(song spotify.Song, w http.ResponseWriter, r *http.Request) {
+	var wg sync.WaitGroup
+	var m meta.Meta
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		metaFinder := meta.NewFinder()
+		_, m = metaFinder.GetMeta(song.ArtistName, song.AlbumName)
+	}()
+
+	finder := lyrics.NewFinder()
+	found, l := finder.GetLyrics(song.ArtistName, song.Name)
+
+	wg.Wait()
+	genre := m.Genre
+	if m.Style != "" {
+		genre += " [" + m.Style + "]"
+	}
+
+	pageData := lyricsPageData{
+		IsAvaible: found,
+		Artist: models.Artist{
+			Name: song.ArtistName,
+		},
+		Song: models.Song{
+			Name:             song.Name,
+			Lyrics:           l,
+			AlbumName:        song.AlbumName,
+			AlbumGenre:       genre,
+			AlbumReleaseDate: song.ReleaseDate,
+			AlbumImage:       song.AlbumImage,
+			AlbumTotalTracks: fmt.Sprint(song.TotalTracks),
+		},
+	}
+
+	files := helpers.GetTemplateFiles("./views/songs.html")
+	tmpl := template.Must(template.ParseFiles(files...))
+	_ = tmpl.Execute(w, pageData)
 }
