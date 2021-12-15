@@ -112,6 +112,12 @@ a.button.is-primary:hover {
   color: grey;
 }
 
+.song-meta {
+  width: 80%;
+  color: grey;
+  font-size: 1em !important;
+}
+
 .card {
   color: #eee;
   background-color: #1b222f;

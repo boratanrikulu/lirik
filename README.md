@@ -18,6 +18,9 @@ Automaticly detects currently playing song in your Spotify account.
 **Translations**  
 Shows translations for the lyrics.
 
+**Meta**  
+Shows additional informations for the song.
+
 **Fast**  
 Uses server side caching to improve the performance. By using this you make the site even faster.
 
