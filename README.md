@@ -1,7 +1,6 @@
 <p align="center">
 	<img src="lirik.png" alt="repo-banner">
 	<p align="center">
-		<strong><code>v0.7.0</code></strong><br>
 		Lyrics for Spotify
 	</p>
 </p>
