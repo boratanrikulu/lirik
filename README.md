@@ -42,9 +42,3 @@ Free, forever.
 ## Credits
 
 Lirik.app uses Genius and Lyricstranslate as resources.
-
-## TODOs
-
-- [ ] Manual searching.  
-- [ ] Manual translations.  
-- [ ] Like button.  
